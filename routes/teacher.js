@@ -4,7 +4,7 @@ import { teacherController } from "../controllers/teacher.js";
 
 export const teacherRouter = express.Router();
 
-teacherRouter.get("/", teacherController.get);
+teacherRouter.get("/:filter", teacherController.get);
 teacherRouter.get("/:document", teacherController.getbyDocument);
 teacherRouter.post("/login", teacherController.getbyCredentials);
 teacherRouter.post("/recovery", teacherController.getbyEmailandDocument);
@@ -25,4 +25,4 @@ teacherRouter.put(
   ]),
   teacherController.update
 );
-teacherRouter.delete("/:id", teacherController.delete);
+teacherRouter.put("/state/:id", teacherController.updateState);

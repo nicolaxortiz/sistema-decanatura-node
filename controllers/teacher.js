@@ -9,8 +9,9 @@ import { transporter } from "../config/nodemailer.js";
 
 export const teacherController = {
   get: async (req, res) => {
+    let { filter } = req.params;
     try {
-      const teachers = await Teacher.find({});
+      const teachers = await Teacher.find({ esActivo: filter });
       if (teachers.length === 0) {
         return res.status(404).send({
           status: "error",
@@ -63,6 +64,13 @@ export const teacherController = {
           status: "error",
           message:
             "No se encontró ningún docente con ese documento y contraseña",
+        });
+      }
+
+      if (teacher.esActivo === false) {
+        return res.status(401).send({
+          status: "error",
+          message: "El docente se encuentra en estado inactivo",
         });
       }
 
@@ -260,13 +268,16 @@ export const teacherController = {
     }
   },
 
-  delete: async (req, res) => {
+  updateState: async (req, res) => {
     let { id } = req.params;
+    let { esActivo } = req.body;
 
     try {
-      const deleteTeacher = await Teacher.findByIdAndDelete(id);
+      const updateTeacher = await Teacher.findByIdAndUpdate(id, {
+        esActivo: esActivo,
+      });
 
-      if (!deleteTeacher) {
+      if (!updateTeacher) {
         return res.status(404).send({
           status: "error",
           message: "No se encontró ningún docente",

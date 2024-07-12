@@ -26,6 +26,7 @@ const teacherSchema = new Schema({
     type: String,
     default: "",
   },
+  esActivo: { type: Boolean, default: true },
 });
 
 export const Teacher = model("Teacher", teacherSchema);
