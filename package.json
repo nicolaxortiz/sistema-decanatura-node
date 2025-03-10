@@ -24,6 +24,8 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.13",
     "pdfmake": "^0.2.10",
+    "pg": "^8.13.3",
+    "sequelize": "^6.37.5",
     "sharp": "^0.33.3"
   },
   "devDependencies": {

@@ -1,0 +1,126 @@
+import { pool } from "../db.js";
+import {
+  encryptPassword,
+  compare,
+  generatePassword,
+} from "../utils/encrypt.js";
+
+export const campusController = {
+  post: async (req, res) => {
+    let { name, email, password } = req.body;
+
+    const initialPassword = await encryptPassword(password);
+
+    try {
+      const query = await pool.query(
+        `INSERT INTO campus (name, email, password) VALUES ($1, $2, $3)`,
+        [name, email, initialPassword]
+      );
+
+      if (query.rowCount === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se pudo guardar el campus",
+        });
+      }
+
+      return res.status(200).send({
+        status: "success",
+        message: "Campus registrado correctamente",
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: "Error al guardar el campus: " + error.message,
+      });
+    }
+  },
+
+  getByCredential: async (req, res) => {
+    let { email, password } = req.body;
+
+    try {
+      const { rows } = await pool.query(
+        "SELECT * FROM campus WHERE email = $1",
+        [email]
+      );
+
+      if (rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún usuario con ese email y contraseña",
+        });
+      }
+
+      try {
+        let verification = await compare(password, rows[0].password);
+        if (verification) {
+          // La contraseña es válida
+          return res.status(200).send({
+            status: "success",
+            campus: rows[0],
+          });
+        } else {
+          // La contraseña es inválida
+          return res.status(404).send({
+            status: "error",
+            message:
+              "No se encontró ningún usuario con ese documento y contraseña",
+          });
+        }
+      } catch (error) {
+        return res.status(500).send({
+          status: "error",
+          message: error.message,
+        });
+      }
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: error.message,
+      });
+    }
+  },
+
+  update: async (req, res) => {
+    let { id } = req.params;
+    let campusObject = req.body;
+
+    try {
+      if (campusObject.password) {
+        campusObject.password = await encryptPassword(campusObject.password);
+      }
+
+      const fields = Object.keys(campusObject);
+      const values = Object.values(campusObject);
+
+      const result = await pool.query(
+        `
+      UPDATE campus 
+      SET ${fields
+        .map((field, index) => `"${field}" = $${index + 1}`)
+        .join(", ")}
+      WHERE id = $${fields.length + 1}
+    `,
+        [...values, id]
+      );
+
+      if (result.rowCount === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún campus",
+        });
+      }
+
+      return res.status(200).send({
+        status: "success",
+        message: "Campus actualizado correctamente",
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: "Error al actualizar el campus" + error.message,
+      });
+    }
+  },
+};

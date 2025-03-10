@@ -1,4 +1,4 @@
-import { Teacher } from "../models/teacher.js";
+import { pool } from "../db.js";
 import { uploadFile } from "../utils/uploadFiles.js";
 import {
   encryptPassword,
@@ -8,11 +8,39 @@ import {
 import { transporter } from "../config/nodemailer.js";
 
 export const teacherController = {
-  get: async (req, res) => {
-    let { filter } = req.params;
+  getAll: async (req, res) => {
+    let { program_id, filter, name, page } = req.body;
+
+    const limit = 8;
+    const offset = (page - 1) * limit;
+
     try {
-      const teachers = await Teacher.find({ esActivo: filter });
-      if (teachers.length === 0) {
+      const count = await pool.query(
+        "SELECT COUNT(*) as total_count FROM teacher WHERE is_active = $1 and program_id = $2;",
+        [filter, program_id]
+      );
+
+      if (count.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún docente",
+        });
+      }
+
+      let rows = [];
+      if (name === "") {
+        rows = await pool.query(
+          "SELECT * FROM teacher WHERE is_active = $1 and program_id = $2 ORDER BY id LIMIT $3 OFFSET $4;",
+          [filter, program_id, limit, offset]
+        );
+      } else {
+        rows = await pool.query(
+          `SELECT * FROM teacher WHERE is_active = $1 and program_id = $2 AND CONCAT(first_name, ' ', last_name) ILIKE '%${name}%'`,
+          [filter, program_id]
+        );
+      }
+
+      if (rows.rows.length === 0) {
         return res.status(404).send({
           status: "error",
           message: "No se encontró ningún docente",
@@ -20,22 +48,26 @@ export const teacherController = {
       }
       return res.status(200).send({
         status: "success",
-        teachers,
+        count: count.rows[0].total_count,
+        teachers: rows.rows,
       });
     } catch (error) {
       return res.status(500).send({
         status: "error",
-        message: "No se ha podido listar los docentes",
+        message: "No se ha podido listar los docentes: " + error.message,
       });
     }
   },
 
   getbyDocument: async (req, res) => {
-    let { document } = req.params;
+    let { program_id, document } = req.params;
 
     try {
-      const teachers = await Teacher.find({ documento: document });
-      if (teachers.length === 0) {
+      const { rows } = await pool.query(
+        "SELECT * FROM teacher WHERE document = $1 and program_id = $2",
+        [document, program_id]
+      );
+      if (rows.length === 0) {
         return res.status(404).send({
           status: "error",
           message: "No se encontró ningún docente",
@@ -43,31 +75,33 @@ export const teacherController = {
       }
       return res.status(200).send({
         status: "success",
-        teachers,
+        teacher: rows[0],
       });
     } catch (error) {
       return res.status(500).send({
         status: "error",
-        message: "No se ha podido listar al docente",
+        message: "No se ha podido listar al docente: " + error.message,
       });
     }
   },
 
   getbyCredentials: async (req, res) => {
-    let { documento, contrasena } = req.body;
+    let { email, password } = req.body;
 
     try {
-      const teacher = await Teacher.findOne({ documento }).exec();
+      const { rows } = await pool.query(
+        "SELECT * FROM teacher WHERE email = $1",
+        [email]
+      );
 
-      if (!teacher) {
+      if (rows.length === 0) {
         return res.status(404).send({
           status: "error",
-          message:
-            "No se encontró ningún docente con ese documento y contraseña",
+          message: "No se encontró ningún usuario con ese email y contraseña",
         });
       }
 
-      if (teacher.esActivo === false) {
+      if (rows[0].is_active === false) {
         return res.status(401).send({
           status: "error",
           message: "El docente se encuentra en estado inactivo",
@@ -75,19 +109,19 @@ export const teacherController = {
       }
 
       try {
-        let verification = await compare(contrasena, teacher.contrasena);
+        let verification = await compare(password, rows[0].password);
         if (verification) {
           // La contraseña es válida
           return res.status(200).send({
             status: "success",
-            teacher,
+            teacher: rows[0],
           });
         } else {
           // La contraseña es inválida
           return res.status(404).send({
             status: "error",
             message:
-              "No se encontró ningún docente con ese documento y contraseña",
+              "No se encontró ningún usuario con ese documento y contraseña",
           });
         }
       } catch (error) {
@@ -105,17 +139,17 @@ export const teacherController = {
   },
 
   getbyEmailandDocument: async (req, res) => {
-    let { correo, documento } = req.body;
+    let { email, document } = req.body;
 
     try {
       const NewPassword = await generatePassword();
 
-      const changeTeacher = await Teacher.findOneAndUpdate(
-        { correo: correo, documento: documento },
-        { contrasena: await encryptPassword(NewPassword) }
-      ).exec();
+      const { rows } = await pool.query(
+        "SELECT * FROM teacher WHERE email = $1 and document = $2",
+        [email, document]
+      );
 
-      if (!changeTeacher) {
+      if (rows.length === 0) {
         return res.status(404).send({
           status: "error",
           message: "No se encontró ningún docente con ese documento y correo",
@@ -124,7 +158,7 @@ export const teacherController = {
 
       const mailOptions = {
         from: "carturotoloza@uts.edu.co",
-        to: correo,
+        to: email,
         subject: "Cambio de contraseña",
         text: "Se le notifica que su nueva contraseña es: " + NewPassword,
       };
@@ -133,13 +167,12 @@ export const teacherController = {
         if (error) {
           return res.status(404).send({
             status: "error",
-            message: "Error en el envio: " + error,
+            message: "Error en el envío: " + error,
           });
         } else {
           return res.status(200).send({
             status: "success",
-            message: "Correo enviado",
-            Teacher: changeTeacher,
+            message: "Correo enviado correctamente",
           });
         }
       });
@@ -152,71 +185,56 @@ export const teacherController = {
   },
 
   post: async (req, res) => {
-    const body = req.body;
-    const personalPic = req.files.foto;
-    const signaturePic = req.files.firma;
+    const {
+      document,
+      first_name,
+      last_name,
+      email,
+      campus,
+      program_name,
+      program_id,
+    } = req.body;
+    const initialPassword = await encryptPassword(document.toString());
+
     try {
-      if (
-        personalPic &&
-        signaturePic &&
-        personalPic.length > 0 &&
-        signaturePic.length > 0
-      ) {
-        const downloadURL1 = await uploadFile(personalPic[0]);
-        const downloadURL2 = await uploadFile(signaturePic[0]);
+      const query = await pool.query(
+        "INSERT INTO teacher (document, first_name, last_name, email, campus, program_name, program_id, password) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+        [
+          document,
+          first_name,
+          last_name,
+          email,
+          campus,
+          program_name,
+          program_id,
+          initialPassword,
+        ]
+      );
 
-        const newTeacher = await new Teacher({
-          documento: body.documento,
-          apellidos: body.apellidos,
-          nombres: body.nombres,
-          foto: downloadURL1,
-          firma: downloadURL2,
-          tarjeta: body.tarjeta,
-          facultad: body.facultad,
-          unidadAcademica: body.unidadAcademica,
-          campus: body.campus,
-          vinculacion: body.vinculacion,
-          escalafon: body.escalafon,
-          direccion: body.direccion,
-          celular: body.celular,
-          correo: body.correo,
-          contrasena: await encryptPassword(body.documento.toString()),
-          pregrado: body.pregrado,
-          especializacion: body.especializacion,
-          magister: body.magister,
-          doctorado: body.doctorado,
-        }).save();
-
-        return res.status(200).json({ newTeacher });
+      if (query.rowCount === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se pudo crear el docente",
+        });
       }
+
+      return res.status(200).send({
+        status: "success",
+        message: "Docente creado correctamente",
+      });
     } catch (error) {
-      return res.status(500).json({ status: "Error", message: error.message });
-    }
-  },
-
-  initialPost: async (req, res) => {
-    const body = req.body;
-
-    try {
-      const newTeacher = await new Teacher({
-        documento: body.documento,
-        celular: body.celular,
-        correo: body.correo,
-        contrasena: await encryptPassword(body.documento.toString()),
-      }).save();
-
-      return res.status(200).json({ newTeacher });
-    } catch (error) {
-      return res.status(500).json({ status: "Error", message: error.message });
+      return res.status(500).send({
+        status: "error",
+        message: "Error al crear al docente: " + error.message,
+      });
     }
   },
 
   update: async (req, res) => {
     let { id } = req.params;
     let updateObject = req.body;
-    const personalPic = req.files?.foto;
-    const signaturePic = req.files?.firma;
-    console.log(updateObject);
+    const personalPic = req.files?.photo;
+    const signaturePic = req.files?.signature;
 
     try {
       if (
@@ -225,31 +243,38 @@ export const teacherController = {
         personalPic.length > 0 &&
         signaturePic.length > 0
       ) {
-        const downloadURL1 = await uploadFile(personalPic[0], id, "foto");
-        const downloadURL2 = await uploadFile(signaturePic[0], id, "firma");
-        updateObject.foto = downloadURL1;
-        updateObject.firma = downloadURL2;
+        const downloadURL1 = await uploadFile(personalPic[0], id, "photo");
+        const downloadURL2 = await uploadFile(signaturePic[0], id, "signature");
+        updateObject.photo = downloadURL1;
+        updateObject.signature = downloadURL2;
       } else if (personalPic && personalPic.length > 0) {
-        const downloadURL1 = await uploadFile(personalPic[0], id, "foto");
-        updateObject.foto = downloadURL1;
+        const downloadURL1 = await uploadFile(personalPic[0], id, "photo");
+        updateObject.photo = downloadURL1;
       } else if (signaturePic && signaturePic.length > 0) {
-        const downloadURL2 = await uploadFile(signaturePic[0], id, "firma");
-        updateObject.firma = downloadURL2;
+        const downloadURL2 = await uploadFile(signaturePic[0], id, "signature");
+        updateObject.signature = downloadURL2;
       }
 
-      if (updateObject.contrasena) {
-        updateObject.contrasena = await encryptPassword(
-          updateObject.contrasena
-        );
+      if (updateObject.password) {
+        updateObject.password = await encryptPassword(updateObject.password);
       }
 
-      const updateTeacher = await Teacher.findOneAndUpdate(
-        { _id: id },
-        updateObject,
-        { new: true }
+      const fields = Object.keys(updateObject);
+      const values = Object.values(updateObject);
+
+      const result = await pool.query(
+        `
+      UPDATE teacher 
+      SET ${fields
+        .map((field, index) => `"${field}" = $${index + 1}`)
+        .join(", ")}
+      WHERE id = $${fields.length + 1}
+      RETURNING *
+    `,
+        [...values, id]
       );
 
-      if (!updateTeacher) {
+      if (result.rowCount === 0) {
         return res.status(404).send({
           status: "error",
           message: "No se encontró ningún docente",
@@ -258,26 +283,28 @@ export const teacherController = {
 
       return res.status(200).send({
         status: "success",
-        updateTeacher,
+        message: "Docente actualizado correctamente",
+        updatedTeacher: result.rows[0],
       });
     } catch (error) {
       return res.status(500).send({
         status: "error",
-        message: error.message,
+        message: "Error al actualizar el docente: " + error.message,
       });
     }
   },
 
   updateState: async (req, res) => {
     let { id } = req.params;
-    let { esActivo } = req.body;
+    let { is_active } = req.body;
 
     try {
-      const updateTeacher = await Teacher.findByIdAndUpdate(id, {
-        esActivo: esActivo,
-      });
+      const result = await pool.query(
+        "UPDATE teacher SET is_active = $1 WHERE id = $2",
+        [is_active, id]
+      );
 
-      if (!updateTeacher) {
+      if (result.rowCount === 0) {
         return res.status(404).send({
           status: "error",
           message: "No se encontró ningún docente",
@@ -286,11 +313,12 @@ export const teacherController = {
 
       return res.status(200).send({
         status: "success",
+        message: "Estado del docente actualizado correctamente",
       });
     } catch (error) {
       return res.status(500).send({
         status: "error",
-        message: error.message,
+        message: "Error al actualizar el estado: " + error.message,
       });
     }
   },

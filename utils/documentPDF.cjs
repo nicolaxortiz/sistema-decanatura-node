@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const PdfPrinter = require("pdfmake/src/printer");
 const Logo = __dirname + "/logoUTS.png";
+const nullSignature = __dirname + "/null_signature.png";
 
 const fonts = {
   Helvetica: {
@@ -48,10 +49,10 @@ function convertirFecha(fecha) {
   if (fecha !== null) {
     const fechaObj = new Date(fecha);
 
-    const dia = fechaObj.getDate().toString().padStart(2, "0");
+    const day = fechaObj.getDate().toString().padStart(2, "0");
     const mes = (fechaObj.getMonth() + 1).toString().padStart(2, "0");
     const anio = fechaObj.getFullYear();
-    const fechaFormateada = `${dia}/${mes}/${anio}`;
+    const fechaFormateada = `${day}/${mes}/${anio}`;
 
     return fechaFormateada;
   } else {
@@ -59,18 +60,25 @@ function convertirFecha(fecha) {
   }
 }
 
-const generatePDF = ({ res, userData, activityData, scheduleData }) => {
-  const imageUrlFoto = userData.foto;
-  const imageUrlFirma = userData.firma;
+const generatePDF = ({
+  res,
+  userData,
+  coordinatorData,
+  activityData,
+  scheduleData,
+  formatData,
+}) => {
+  const imageUrlFoto = userData.photo;
+  const imageUrlFirma = userData.signature;
   const imagePathFoto = path.join(
     __dirname,
     "images",
-    `${userData.documento}foto.jpg`
+    `${userData.document}foto.jpg`
   );
   const imagePathFirma = path.join(
     __dirname,
     "images",
-    `${userData.documento}firma.jpg`
+    `${userData.document}firma.jpg`
   );
 
   async function downloadImage(foto, path) {
@@ -92,9 +100,11 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
   downloadImage(imageUrlFoto, imagePathFoto);
   downloadImage(imageUrlFirma, imagePathFirma);
 
-  let imgPersonal = __dirname + "/images/" + userData.documento + "foto.jpg";
-  let imgFirma = __dirname + "/images/" + userData.documento + "firma.jpg";
-  console.log(imgPersonal);
+  let imgPersonal = __dirname + "/images/" + userData.document + "foto.jpg";
+  let imgFirmaDocente =
+    __dirname + "/images/" + userData.document + "firma.jpg";
+  let imgFirmaCoordinador =
+    __dirname + "/images/" + coordinatorData.document + "firma.jpg";
 
   let tableActividades = [
     [
@@ -128,6 +138,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
       },
     ],
   ];
+
   let tableSeguimiento = [
     [
       { text: `#`, style: "header" },
@@ -167,7 +178,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
         style: "header",
       },
       {
-        text: `Fecha de entrega`,
+        text: `Fecha de entrega (real)`,
         style: "header",
       },
       {
@@ -176,70 +187,77 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
       },
     ],
   ];
-  let countHoras = 0;
+  let countHours = 0;
 
-  activityData.actividad.forEach((item, index) => {
-    countHoras += item.horas;
+  activityData.forEach((item, index) => {
+    countHours += parseFloat(item.hours);
+
+    if (parseFloat(item.hours) % 1 === 0) {
+      item.hours = parseFloat(item.hours).toFixed(0);
+    } else {
+      item.hours = parseFloat(item.hours).toFixed(2);
+    }
+
     tableActividades.push([
       { text: index + 1, style: "header" },
-      { text: item.nombre, style: "dataLeft" },
-      { text: item.misional, style: "dataLeft" },
-      { text: item.descripcion, style: "dataLeft" },
-      { text: item.grupo, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.responsable, style: "dataLeft" },
+      { text: item.name, style: "dataLeft" },
+      { text: item.mission, style: "dataLeft" },
+      { text: item.description, style: "dataLeft" },
+      { text: item.group_name, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.responsible, style: "dataLeft" },
     ]);
 
     tableSeguimiento.push([
       { text: index + 1, style: "header" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas, style: "data" },
-      { text: item.horas * 17, style: "header" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours, style: "data" },
+      { text: item.hours * 17, style: "header" },
     ]);
 
     tableProductos.push([
       { text: index + 1, style: "header" },
-      { text: item.producto.descripcion, style: "dataLeft" },
-      { text: convertirFecha(item.producto.fechaEstimada), style: "data" },
-      { text: convertirFecha(item.producto.fechaReal), style: "data" },
-      { text: item.producto.comentario, style: "dataLeft" },
+      { text: item.product.description, style: "dataLeft" },
+      { text: convertirFecha(item.product.estimated_date), style: "data" },
+      { text: convertirFecha(item.product.real_date), style: "data" },
+      { text: item.product.comment, style: "dataLeft" },
     ]);
   });
 
   tableSeguimiento.push([
     { text: "H/S", style: "header" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
-    { text: countHoras, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
+    { text: countHours, style: "data" },
     { text: "", style: "header" },
   ]);
 
@@ -258,7 +276,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
         style: "header",
       },
       {
-        text: `Miercoles`,
+        text: `Miércoles`,
         style: "header",
       },
       {
@@ -270,7 +288,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
         style: "header",
       },
       {
-        text: `Sabado`,
+        text: `Sábado`,
         style: "header",
       },
     ],
@@ -314,70 +332,52 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
         style: "data",
       },
     ];
-    scheduleData.horas.forEach((horario) => {
-      if (
-        horario.registro[0].momento === index &&
-        horario.registro[0].dia === "Lunes"
-      ) {
+    scheduleData.forEach((horario) => {
+      if (horario.moment === index && horario.day === "Lunes") {
         lunesCount++;
         actForDay[1] = {
-          text: horario.actividad,
-          style: horario.clasificacion.split(" ").join(""),
+          text: horario.name,
+          style: horario.classification.split(" ").join(""),
         };
       }
 
-      if (
-        horario.registro[0].momento === index &&
-        horario.registro[0].dia === "Martes"
-      ) {
+      if (horario.moment === index && horario.day === "Martes") {
         martesCount++;
         actForDay[2] = {
-          text: horario.actividad,
-          style: horario.clasificacion.split(" ").join(""),
+          text: horario.name,
+          style: horario.classification.split(" ").join(""),
         };
       }
 
-      if (
-        horario.registro[0].momento === index &&
-        horario.registro[0].dia === "Miercoles"
-      ) {
+      if (horario.moment === index && horario.day === "Miércoles") {
         miercolesCount++;
         actForDay[3] = {
-          text: horario.actividad,
-          style: horario.clasificacion.split(" ").join(""),
+          text: horario.name,
+          style: horario.classification.split(" ").join(""),
         };
       }
 
-      if (
-        horario.registro[0].momento === index &&
-        horario.registro[0].dia === "Jueves"
-      ) {
+      if (horario.moment === index && horario.day === "Jueves") {
         juevesCount++;
         actForDay[4] = {
-          text: horario.actividad,
-          style: horario.clasificacion.split(" ").join(""),
+          text: horario.name,
+          style: horario.classification.split(" ").join(""),
         };
       }
 
-      if (
-        horario.registro[0].momento === index &&
-        horario.registro[0].dia === "Viernes"
-      ) {
+      if (horario.moment === index && horario.day === "Viernes") {
         viernesCount++;
         actForDay[5] = {
-          text: horario.actividad,
-          style: horario.clasificacion.split(" ").join(""),
+          text: horario.name,
+          style: horario.classification.split(" ").join(""),
         };
       }
 
-      if (
-        horario.registro[0].momento === index &&
-        horario.registro[0].dia === "Sabado"
-      ) {
+      if (horario.moment === index && horario.day === "Sábado") {
         sabadoCount++;
         actForDay[6] = {
-          text: horario.actividad,
-          style: horario.clasificacion.split(" ").join(""),
+          text: horario.name,
+          style: horario.classification.split(" ").join(""),
         };
       }
     });
@@ -536,19 +536,19 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
             ],
             [
               {
-                text: userData.apellidos,
+                text: userData.last_name,
                 style: "data",
               },
               {
-                text: userData.nombres,
+                text: userData.first_name,
                 style: "data",
               },
               {
-                text: userData.tarjeta,
+                text: userData.card,
                 style: "data",
               },
               {
-                text: userData.documento,
+                text: userData.document,
                 style: "data",
               },
             ],
@@ -590,11 +590,11 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
             ],
             [
               {
-                text: userData.facultad,
+                text: userData.faculty,
                 style: "data",
               },
               {
-                text: userData.unidadAcademica,
+                text: userData.program_name,
                 style: "data",
               },
               {
@@ -602,15 +602,15 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
                 style: "data",
               },
               {
-                text: userData.vinculacion,
+                text: userData.employment_type,
                 style: "data",
               },
               {
-                text: userData.escalafon,
+                text: userData.rank,
                 style: "data",
               },
               {
-                text: process.env.CURRENTSEMESTER,
+                text: activityData[0].semester,
                 style: "data",
               },
             ],
@@ -640,15 +640,15 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
             ],
             [
               {
-                text: userData.direccion,
+                text: userData.address,
                 style: "data",
               },
               {
-                text: userData.celular,
+                text: userData.phone,
                 style: "data",
               },
               {
-                text: userData.correo,
+                text: userData.email,
                 style: "data",
               },
             ],
@@ -664,7 +664,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
           body: [
             [
               {
-                text: `INFORMACIÓN ACADÉMICA (Titulos obtenidos en Colombia o convalidados por el MEN)`,
+                text: `INFORMACIÓN ACADÉMICA (Títulos obtenidos en Colombia o convalidados por el MEN)`,
                 style: "headerTitle",
               },
             ],
@@ -683,7 +683,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
                 style: "header",
               },
               {
-                text: userData.pregrado,
+                text: userData.undergraduate,
                 style: "data",
               },
               {
@@ -695,7 +695,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
                 style: "header",
               },
               {
-                text: userData.especializacion,
+                text: userData.specialization,
                 style: "data",
               },
               {
@@ -703,7 +703,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
                 style: "header",
               },
               {
-                text: userData.magister,
+                text: userData.master,
                 style: "data",
               },
               {
@@ -711,7 +711,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
                 style: "header",
               },
               {
-                text: userData.doctorado,
+                text: userData.doctorate,
                 style: "data",
               },
             ],
@@ -757,7 +757,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
                 style: "dataRight",
               },
               {
-                text: countHoras,
+                text: countHours,
                 style: "header",
               },
             ],
@@ -829,7 +829,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
                 style: "dataRight",
               },
               {
-                text: countHoras * 17,
+                text: countHours * 17,
                 style: "header",
               },
             ],
@@ -839,13 +839,13 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
                 style: "dataRight",
               },
               {
-                text: convertirHora(countHoras * 17),
+                text: convertirHora(countHours * 17),
                 style: "header",
               },
             ],
           ],
         },
-        margin: [0, 0, 0, 15],
+        margin: [0, 15, 0, 15],
       },
 
       {
@@ -911,7 +911,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
                 style: "dataRight",
               },
               {
-                text: countHoras,
+                text: countHours,
                 style: "header",
               },
             ],
@@ -921,7 +921,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
                 style: "dataRight",
               },
               {
-                text: convertirHora(countHoras),
+                text: convertirHora(countHours),
                 style: "header",
               },
             ],
@@ -944,7 +944,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
             ],
             [
               {
-                text: scheduleData.observacion,
+                text: formatData.observation,
                 style: "dataLeft",
                 margin: [5, 5, 5, 5],
               },
@@ -953,7 +953,6 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
         },
         margin: [0, 0, 0, 15],
       },
-
       {
         table: {
           headerRows: 1,
@@ -962,12 +961,12 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
           body: [
             [
               {
-                text: `${userData.nombres} ${userData.apellidos}`,
+                text: `${userData.first_name} ${userData.last_name}`,
                 style: "header",
               },
 
               {
-                text: "Coordinador del programa",
+                text: `${coordinatorData.first_name} ${coordinatorData.last_name}`,
                 style: "header",
               },
 
@@ -978,14 +977,18 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
             ],
             [
               {
-                image: imgFirma,
+                image: imgFirmaDocente,
                 fit: [150, 150],
                 margin: [0, 8, 0, 8],
                 style: "data",
               },
 
               {
-                text: "",
+                image: formatData?.is_signed
+                  ? imgFirmaCoordinador
+                  : nullSignature,
+                fit: [150, 150],
+                margin: [0, 8, 0, 8],
                 style: "data",
               },
 
@@ -1063,7 +1066,7 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
                 style: "data",
               },
               {
-                text: "Carlos Arturo Toloza Valencia",
+                text: "Carlos Arturo Toloza Valencia - Nicolas Santiago Ortiz Pedraza",
                 style: "data",
               },
               {
@@ -1088,6 +1091,8 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
         alignment: "center",
         fontSize: 10,
         bold: true,
+        marginTop: 2,
+        marginBottom: 2,
       },
       header: {
         fillColor: "#ededed",
@@ -1095,6 +1100,8 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
         alignment: "center",
         fontSize: 10,
         bold: true,
+        marginTop: 2,
+        marginBottom: 2,
       },
       title: {
         alignment: "center",
@@ -1110,11 +1117,15 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
         lineHeight: 1,
         alignment: "center",
         fontSize: 10,
+        marginTop: 2,
+        marginBottom: 2,
       },
       dataLeft: {
         lineHeight: 1,
         alignment: "left",
         fontSize: 10,
+        marginTop: 2,
+        marginBottom: 2,
       },
       dataRight: {
         lineHeight: 1,
@@ -1122,6 +1133,8 @@ const generatePDF = ({ res, userData, activityData, scheduleData }) => {
         fontSize: 10,
         fillColor: "#ededed",
         bold: true,
+        marginTop: 2,
+        marginBottom: 2,
       },
       Docenciadirecta: {
         lineHeight: 1,

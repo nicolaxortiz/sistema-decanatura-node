@@ -3,9 +3,12 @@ import { activityController } from "../controllers/activity.js";
 
 export const activityRouter = express.Router();
 
-activityRouter.get("/", activityController.getAll);
-activityRouter.get("/:id", activityController.getbyIdDocenteAndSemester);
-activityRouter.get("/get/:id", activityController.getbyIdDocente);
+activityRouter.get("/getAll/:program_id/:semester", activityController.getAll);
+activityRouter.get(
+  "/getByIdAndSemester/:id/:semester",
+  activityController.getbyIdDocenteAndSemester
+);
+activityRouter.get("/getById/:id", activityController.getbyIdDocente);
 activityRouter.post("/save", activityController.post);
 activityRouter.put("/:id", activityController.update);
 activityRouter.delete("/:id", activityController.delete);

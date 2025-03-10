@@ -1,12 +1,16 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { connectDB } from "./config/db.js";
+import { pool } from "./db.js";
 import { teacherRouter } from "./routes/teacher.js";
 import { activityRouter } from "./routes/activity.js";
 import { scheduleRouter } from "./routes/schedule.js";
 import { documentRouter } from "./routes/document.js";
+import { configurationRouter } from "./routes/configuration.js";
+import { coordinatorRouter } from "./routes/coordinator.js";
+import { formatRouter } from "./routes/format.js";
+import { campusRouter } from "./routes/campus.js";
+import { programRouter } from "./routes/program.js";
 
-const db = connectDB();
 const app = express();
 const port = process.env.PORT;
 
@@ -27,10 +31,15 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use("/api/campus", campusRouter);
+app.use("/api/programa", programRouter);
+app.use("/api/configuracion", configurationRouter);
 app.use("/api/docentes", teacherRouter);
+app.use("/api/coordinador", coordinatorRouter);
 app.use("/api/actividad", activityRouter);
 app.use("/api/horario", scheduleRouter);
 app.use("/api/documento", documentRouter);
+app.use("/api/formato", formatRouter);
 
 app.listen(port, () => {
   console.log("servidor funcionando en el puerto " + port);

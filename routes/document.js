@@ -3,5 +3,8 @@ import { documentController } from "../controllers/document.js";
 
 export const documentRouter = express.Router();
 
-documentRouter.get("/pdf/:id", documentController.getDocument);
-documentRouter.get("/pdfFinal", documentController.getReporte);
+documentRouter.get("/pdf/:semester/:id", documentController.getDocument);
+documentRouter.get(
+  "/pdfFinal/:program_id/:semester",
+  documentController.getReporte
+);

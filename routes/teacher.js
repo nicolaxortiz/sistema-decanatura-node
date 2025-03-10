@@ -4,24 +4,16 @@ import { teacherController } from "../controllers/teacher.js";
 
 export const teacherRouter = express.Router();
 
-teacherRouter.get("/sort/:filter", teacherController.get);
-teacherRouter.get("/:document", teacherController.getbyDocument);
+teacherRouter.post("/sort", teacherController.getAll);
+teacherRouter.get("/:program_id/:document", teacherController.getbyDocument);
 teacherRouter.post("/login", teacherController.getbyCredentials);
 teacherRouter.post("/recovery", teacherController.getbyEmailandDocument);
-teacherRouter.post("/", teacherController.initialPost);
-teacherRouter.post(
-  "/save",
-  upload.fields([
-    { name: "foto", maxCount: 1 },
-    { name: "firma", maxCount: 1 },
-  ]),
-  teacherController.post
-);
+teacherRouter.post("/", teacherController.post);
 teacherRouter.put(
   "/:id",
   upload.fields([
-    { name: "foto", maxCount: 1 },
-    { name: "firma", maxCount: 1 },
+    { name: "photo", maxCount: 1 },
+    { name: "signature", maxCount: 1 },
   ]),
   teacherController.update
 );
