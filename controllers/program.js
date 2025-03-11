@@ -19,9 +19,16 @@ export const programController = {
         });
       }
 
+      const coordinators = await pool.query(`SELECT * FROM coordinator 
+        JOIN program ON coordinator.program_id = program.id  
+        WHERE program.campus_id = $1`, [campus_id])
+
+
+
       return res.status(200).send({
         status: "success",
         programs: rows,
+        coordinators: coordinators.rows
       });
     } catch (error) {
       return res.status(500).send({
