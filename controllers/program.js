@@ -2,14 +2,37 @@ import { pool } from "../db.js";
 
 export const programController = {
   getByCampusId: async (req, res) => {
-    let { campus_id } = req.params;
+    let { campus_id, actualPage } = req.params;
+
+    const limit = 8;
+    const offset = (actualPage - 1) * limit;
 
     try {
-      const { rows } = await pool.query(
-        `SELECT *
-        FROM program
-        WHERE campus_id = $1`,
+      const count = await pool.query(
+        `SELECT COUNT(DISTINCT program.id) AS total_count 
+        FROM program 
+        LEFT JOIN coordinator ON program.id = coordinator.program_id
+        WHERE program.campus_id = $1;`,
         [campus_id]
+      );
+
+      if (count.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún formato",
+        });
+      }
+
+      const { rows } = await pool.query(
+        `SELECT 
+        program.id AS program_id,
+        program.name AS program_name,
+        coordinator.first_name AS coordinator_first_name,
+        coordinator.last_name AS coordinator_last_name
+        FROM program 
+        LEFT JOIN coordinator ON program.id = coordinator.program_id
+        WHERE program.campus_id = $1 ORDER BY program.id LIMIT $2 OFFSET $3;`,
+        [campus_id, limit, offset]
       );
 
       if (rows.length === 0) {
@@ -19,16 +42,10 @@ export const programController = {
         });
       }
 
-      const coordinators = await pool.query(`SELECT * FROM coordinator 
-        JOIN program ON coordinator.program_id = program.id  
-        WHERE program.campus_id = $1`, [campus_id])
-
-
-
       return res.status(200).send({
         status: "success",
+        count: count.rows[0].total_count,
         programs: rows,
-        coordinators: coordinators.rows
       });
     } catch (error) {
       return res.status(500).send({

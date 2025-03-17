@@ -87,7 +87,18 @@ export const coordinatorController = {
 
     try {
       const { rows } = await pool.query(
-        "SELECT * FROM coordinator WHERE campus_id = $1",
+        `SELECT 
+        c.id AS coordinator_id,
+        c.document,
+        c.first_name,
+        c.last_name,
+        c.email,
+        c.signature,
+        p.id AS program_id,
+        p.name AS program_name
+        FROM Coordinator c
+        JOIN Program p ON c.program_id = p.id
+        WHERE p.campus_id = $1;`,
         [campus_id]
       );
 
@@ -100,7 +111,7 @@ export const coordinatorController = {
 
       return res.status(200).send({
         status: "success",
-        coordinator: rows[0],
+        coordinators: rows,
       });
     } catch (error) {
       return res.status(500).send({
