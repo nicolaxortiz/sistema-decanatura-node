@@ -1,11 +1,12 @@
 import { pool } from "../db.js";
-import { uploadFile } from "../utils/uploadFiles.js";
 import {
   encryptPassword,
   compare,
   generatePassword,
 } from "../utils/encrypt.js";
 import { transporter } from "../config/nodemailer.js";
+import getPath from "../utils/downloadImage.cjs";
+const downloadImage = getPath;
 
 export const teacherController = {
   getAll: async (req, res) => {
@@ -237,22 +238,30 @@ export const teacherController = {
     const signaturePic = req.files?.signature;
 
     try {
+      const response = await pool.query(
+        "SELECT document FROM teacher where id = $1",
+        [id]
+      );
+      if (response.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún docente",
+        });
+      }
+      const document = response.rows[0].document;
+
       if (
         personalPic &&
         signaturePic &&
         personalPic.length > 0 &&
         signaturePic.length > 0
       ) {
-        const downloadURL1 = await uploadFile(personalPic[0], id, "photo");
-        const downloadURL2 = await uploadFile(signaturePic[0], id, "signature");
-        updateObject.photo = downloadURL1;
-        updateObject.signature = downloadURL2;
+        await downloadImage(document, personalPic[0], "foto");
+        await downloadImage(document, signaturePic[0], "firma");
       } else if (personalPic && personalPic.length > 0) {
-        const downloadURL1 = await uploadFile(personalPic[0], id, "photo");
-        updateObject.photo = downloadURL1;
+        await downloadImage(document, personalPic[0], "foto");
       } else if (signaturePic && signaturePic.length > 0) {
-        const downloadURL2 = await uploadFile(signaturePic[0], id, "signature");
-        updateObject.signature = downloadURL2;
+        await downloadImage(document, signaturePic[0], "firma");
       }
 
       if (updateObject.password) {

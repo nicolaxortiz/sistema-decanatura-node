@@ -1,14 +1,17 @@
 import { pool } from "../db.js";
-import {
-  encryptPassword,
-  compare,
-  generatePassword,
-} from "../utils/encrypt.js";
-import { uploadFile } from "../utils/uploadFiles.js";
+import { encryptPassword, compare } from "../utils/encrypt.js";
+import getPath from "../utils/downloadImage.cjs";
+const downloadImage = getPath;
 
 export const coordinatorController = {
   post: async (req, res) => {
     const { document, first_name, last_name, email, program_id } = req.body;
+    const signaturePic = req.files?.signature;
+
+    if (signaturePic && signaturePic.length > 0) {
+      downloadImage(document, signaturePic[0], "firma");
+    }
+
     const initialPassword = await encryptPassword(document.toString());
 
     try {
@@ -86,19 +89,33 @@ export const coordinatorController = {
     let { campus_id } = req.params;
 
     try {
+      const count = await pool.query(
+        `SELECT COUNT(*) as total_count 
+        FROM coordinator
+        JOIN program ON coordinator.program_id = program.id
+        WHERE program.campus_id = $1;`,
+        [campus_id]
+      );
+
+      if (count.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún docente",
+        });
+      }
+
       const { rows } = await pool.query(
         `SELECT 
-        c.id AS coordinator_id,
-        c.document,
-        c.first_name,
-        c.last_name,
-        c.email,
-        c.signature,
-        p.id AS program_id,
-        p.name AS program_name
-        FROM Coordinator c
-        JOIN Program p ON c.program_id = p.id
-        WHERE p.campus_id = $1;`,
+        coordinator.id AS coordinator_id,
+        coordinator.document,
+        coordinator.first_name,
+        coordinator.last_name,
+        coordinator.email,
+        program.id AS program_id,
+        program.name AS program_name
+        FROM coordinator
+        JOIN program ON coordinator.program_id = program.id
+        WHERE program.campus_id = $1;`,
         [campus_id]
       );
 
@@ -111,6 +128,7 @@ export const coordinatorController = {
 
       return res.status(200).send({
         status: "success",
+        count: count.rows[0].total_count,
         coordinators: rows,
       });
     } catch (error) {
@@ -128,8 +146,18 @@ export const coordinatorController = {
 
     try {
       if (signaturePic && signaturePic.length > 0) {
-        const downloadURL1 = await uploadFile(signaturePic[0], id, "signature");
-        updateObject.signature = downloadURL1;
+        const response = await pool.query(
+          "SELECT document FROM coordinator where id = $1",
+          [id]
+        );
+        if (response.rows.length === 0) {
+          return res.status(404).send({
+            status: "error",
+            message: "No se encontró ningún coordinador",
+          });
+        }
+        const document = response.rows[0].document;
+        await downloadImage(document, signaturePic[0], "firma");
       }
 
       if (updateObject.password) {

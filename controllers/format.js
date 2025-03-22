@@ -31,7 +31,7 @@ export const formatController = {
   },
 
   getByProgramIdAndSemester: async (req, res) => {
-    let { id, semester, actualPage } = req.params;
+    let { id, semester, searchName, actualPage } = req.body;
 
     const limit = 8;
     const offset = (actualPage - 1) * limit;
@@ -51,15 +51,28 @@ export const formatController = {
         });
       }
 
-      const { rows } = await pool.query(
-        `
-        SELECT format.*, teacher.document, teacher.first_name, teacher.last_name, teacher.employment_type, teacher.campus
+      let rows = [];
+      if (searchName === "") {
+        rows = await pool.query(
+          `
+          SELECT format.*, teacher.document, teacher.first_name, teacher.last_name, teacher.employment_type, teacher.campus
+          FROM format
+          INNER JOIN teacher ON format.teacher_id = teacher.id
+          WHERE teacher.program_id = $1 AND format.semester = $2 ORDER BY id LIMIT $3 OFFSET $4;
+          `,
+          [id, semester, limit, offset]
+        );
+      } else {
+        rows = await pool.query(
+          `SELECT format.*, teacher.document, teacher.first_name, teacher.last_name, teacher.employment_type, teacher.campus
         FROM format
         INNER JOIN teacher ON format.teacher_id = teacher.id
-        WHERE teacher.program_id = $1 AND format.semester = $2 ORDER BY id LIMIT $3 OFFSET $4;
-        `,
-        [id, semester, limit, offset]
-      );
+        WHERE teacher.program_id = $1 
+        AND format.semester = $2 
+        AND CONCAT(teacher.first_name, ' ', teacher.last_name) ILIKE '%${searchName}%'`,
+          [id, semester]
+        );
+      }
 
       if (rows.length === 0) {
         return res.status(404).send({
@@ -72,7 +85,7 @@ export const formatController = {
         status: "success",
         message: "Formato encontrado",
         count: count.rows[0].total_count,
-        format: rows,
+        format: rows.rows,
       });
     } catch (error) {
       return res.status(500).send({

@@ -68,38 +68,6 @@ const generatePDF = ({
   scheduleData,
   formatData,
 }) => {
-  const imageUrlFoto = userData.photo;
-  const imageUrlFirma = userData.signature;
-  const imagePathFoto = path.join(
-    __dirname,
-    "images",
-    `${userData.document}foto.jpg`
-  );
-  const imagePathFirma = path.join(
-    __dirname,
-    "images",
-    `${userData.document}firma.jpg`
-  );
-
-  async function downloadImage(foto, path) {
-    try {
-      const response = await axios.get(foto, { responseType: "stream" });
-      const writer = fs.createWriteStream(path);
-
-      response.data.pipe(writer);
-
-      await new Promise((resolve, reject) => {
-        writer.on("finish", resolve);
-        writer.on("error", reject);
-      });
-    } catch (error) {
-      console.error("Error al descargar la imagen:", error);
-    }
-  }
-
-  downloadImage(imageUrlFoto, imagePathFoto);
-  downloadImage(imageUrlFirma, imagePathFirma);
-
   let imgPersonal = __dirname + "/images/" + userData.document + "foto.jpg";
   let imgFirmaDocente =
     __dirname + "/images/" + userData.document + "firma.jpg";
@@ -979,7 +947,7 @@ const generatePDF = ({
               {
                 image: imgFirmaDocente,
                 fit: [150, 150],
-                margin: [0, 8, 0, 8],
+                margin: [0, 2, 0, 2],
                 style: "data",
               },
 
@@ -988,7 +956,7 @@ const generatePDF = ({
                   ? imgFirmaCoordinador
                   : nullSignature,
                 fit: [150, 150],
-                margin: [0, 8, 0, 8],
+                margin: [0, 2, 0, 2],
                 style: "data",
               },
 
@@ -1185,6 +1153,11 @@ const generatePDF = ({
       lineHeight: 1.3,
     },
   };
+
+  res.setHeader(
+    "Content-Disposition",
+    `filename="F-DC-54-${userData.first_name} ${userData.last_name} - Semestre${activityData[0].semester}.pdf"`
+  );
 
   const pdfDoc = printer.createPdfKitDocument(docDefinition);
   pdfDoc.pipe(res);

@@ -93,7 +93,7 @@ const reportePDF = ({
       {},
 
       {
-        text: `Extension (5%)`,
+        text: `Extensión (5%)`,
         style: "Extensión",
         colSpan: 5,
         rowSpan: 2,
@@ -187,6 +187,7 @@ const reportePDF = ({
       {},
       {},
     ],
+
     [
       {},
       {},
@@ -264,7 +265,7 @@ const reportePDF = ({
       { image: titles.oda8, width: 15, style: "ProcesosODA", marginTop: 30 },
       { image: titles.total, width: 15, style: "ProcesosODA", marginTop: 30 },
       { image: titles.comites1, width: 15, style: "Comités", marginTop: 30 },
-      { image: titles.comites1, width: 15, style: "Comités", marginTop: 30 },
+      { image: titles.comites2, width: 15, style: "Comités", marginTop: 30 },
       { image: titles.total, width: 15, style: "Comités", marginTop: 35 },
       { image: titles.otras1, width: 15, style: "Otras", marginTop: 50 },
       { image: titles.otras2, width: 15, style: "Otras" },
@@ -281,11 +282,11 @@ const reportePDF = ({
     columnInvestigación3: 0,
     columnInvestigación4: 0,
     columnInvestigaciónTotal: 0,
-    columnExtension1: 0,
-    columnExtension2: 0,
-    columnExtension3: 0,
-    columnExtension4: 0,
-    columnExtensionTotal: 0,
+    columnExtensión1: 0,
+    columnExtensión2: 0,
+    columnExtensión3: 0,
+    columnExtensión4: 0,
+    columnExtensiónTotal: 0,
     columnOACA1: 0,
     columnOACA2: 0,
     columnOACA3: 0,
@@ -325,11 +326,11 @@ const reportePDF = ({
       countInvestigación3: 0,
       countInvestigación4: 0,
       countInvestigaciónTotal: 0,
-      countExtension1: 0,
-      countExtension2: 0,
-      countExtension3: 0,
-      countExtension4: 0,
-      countExtensionTotal: 0,
+      countExtensión1: 0,
+      countExtensión2: 0,
+      countExtensión3: 0,
+      countExtensión4: 0,
+      countExtensiónTotal: 0,
       countOACA1: 0,
       countOACA2: 0,
       countOACA3: 0,
@@ -375,11 +376,11 @@ const reportePDF = ({
       counts.countInvestigación3 +
       counts.countInvestigación4;
 
-    counts.countExtensionTotal =
-      counts.countExtension1 +
-      counts.countExtension2 +
-      counts.countExtension3 +
-      counts.countExtension4;
+    counts.countExtensiónTotal =
+      counts.countExtensión1 +
+      counts.countExtensión2 +
+      counts.countExtensión3 +
+      counts.countExtensión4;
 
     counts.countOACATotal =
       counts.countOACA1 +
@@ -421,11 +422,11 @@ const reportePDF = ({
     columns.columnInvestigación4 += counts.countInvestigación4;
     columns.columnInvestigaciónTotal += counts.countInvestigaciónTotal;
 
-    columns.columnExtension1 += counts.countExtension1;
-    columns.columnExtension2 += counts.countExtension2;
-    columns.columnExtension3 += counts.countExtension3;
-    columns.columnExtension4 += counts.countExtension4;
-    columns.columnExtensionTotal += counts.countExtensionTotal;
+    columns.columnExtensión1 += counts.countExtensión1;
+    columns.columnExtensión2 += counts.countExtensión2;
+    columns.columnExtensión3 += counts.countExtensión3;
+    columns.columnExtensión4 += counts.countExtensión4;
+    columns.columnExtensiónTotal += counts.countExtensiónTotal;
 
     columns.columnOACA1 += counts.countOACA1;
     columns.columnOACA2 += counts.countOACA2;
@@ -522,7 +523,7 @@ const reportePDF = ({
   const data = [
     (columns.columnDocencia / columns.columnTotal) * 100,
     (columns.columnInvestigaciónTotal / columns.columnTotal) * 100,
-    (columns.columnExtensionTotal / columns.columnTotal) * 100,
+    (columns.columnExtensiónTotal / columns.columnTotal) * 100,
     (columns.columnOtrasActividadesTotal / columns.columnTotal) * 100,
   ];
   const colors = ["#97ce81", "#d3e4f3", "#e9d4c1", "#DADADA"];
@@ -732,7 +733,7 @@ const reportePDF = ({
                       },
                       {
                         text: `${(
-                          (columns.columnExtensionTotal / columns.columnTotal) *
+                          (columns.columnExtensiónTotal / columns.columnTotal) *
                           100
                         ).toFixed(1)}%`,
                         style: "Extensión",
@@ -926,6 +927,11 @@ const reportePDF = ({
       lineHeight: 1.3,
     },
   };
+
+  res.setHeader(
+    "Content-Disposition",
+    `filename="Reporte de distribución de la actividad docente ${semester} - ${program_name}.pdf"`
+  );
 
   const pdfDoc = printer.createPdfKitDocument(docDefinition);
   pdfDoc.pipe(res);

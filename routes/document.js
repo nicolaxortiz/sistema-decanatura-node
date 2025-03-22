@@ -8,3 +8,8 @@ documentRouter.get(
   "/pdfFinal/:program_id/:semester",
   documentController.getReporte
 );
+
+documentRouter.get(
+  "/pdfMission/:program_id/:semester/:mission",
+  documentController.getReporteByMission
+);

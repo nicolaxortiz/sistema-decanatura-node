@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { pool } from "./db.js";
+import path from "path";
+import { fileURLToPath } from "url";
 import { teacherRouter } from "./routes/teacher.js";
 import { activityRouter } from "./routes/activity.js";
 import { scheduleRouter } from "./routes/schedule.js";
@@ -13,6 +14,8 @@ import { programRouter } from "./routes/program.js";
 
 const app = express();
 const port = process.env.PORT;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 //Body-parser para analizar el body de la peticion a traves de la url
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -30,6 +33,8 @@ app.use((req, res, next) => {
   res.header("Allow", "GET, POST, OPTIONS, PUT, DELETE");
   next();
 });
+
+app.use("/api/images", express.static(path.join(__dirname, "utils/images")));
 
 app.use("/api/campus", campusRouter);
 app.use("/api/programa", programRouter);

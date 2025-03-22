@@ -2,6 +2,21 @@ import pkg from "../utils/documentPDF.cjs";
 const generatePDF = pkg;
 import pkg1 from "../utils/reportePDF.cjs";
 const reportePDF = pkg1;
+import pkg2 from "../utils/reporteDocenciaPDF.cjs";
+const reporteDocenciaPDF = pkg2;
+import pkg3 from "../utils/reporteInvestigacionPDF.cjs";
+const reporteInvestigacionPDF = pkg3;
+import pkg4 from "../utils/reporteExtensionPDF.cjs";
+const reporteExtensionPDF = pkg4;
+import pkg5 from "../utils/reporteOACAPDF.cjs";
+const reporteProcesosOACAPDF = pkg5;
+import pkg6 from "../utils/reporteODAPDF.cjs";
+const reporteProcesosODAPDF = pkg6;
+import pkg7 from "../utils/reporteComitesPDF.cjs";
+const reporteComitesPDF = pkg7;
+import pkg8 from "../utils/reporteOtrasPDF.cjs";
+const reporteOtrasPDF = pkg8;
+
 import { pool } from "../db.js";
 
 export const documentController = {
@@ -78,7 +93,7 @@ export const documentController = {
     } catch (error) {
       return res.status(500).send({
         status: "error",
-        error: error.message,
+        error: error,
       });
     }
   },
@@ -123,7 +138,131 @@ export const documentController = {
     } catch (error) {
       return res.status(500).send({
         status: "error",
-        error: error,
+        error: error.message,
+      });
+    }
+  },
+
+  getReporteByMission: async (req, res) => {
+    let { program_id, semester, mission } = req.params;
+
+    try {
+      const teacher = await pool.query(
+        "SELECT * FROM teacher WHERE program_id = $1 AND is_active = true ORDER BY id ASC",
+        [program_id]
+      );
+
+      if (teacher.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún docente",
+        });
+      }
+
+      const activities = await pool.query(
+        ` SELECT activity.* 
+        FROM activity 
+        JOIN teacher ON activity.teacher_id = teacher.id 
+        JOIN program ON teacher.program_id = program.id 
+        WHERE program.id = $1 
+        AND activity.semester = $2 
+        AND activity.consolidated ILIKE $3`,
+        [program_id, semester, `${mission}%`]
+      );
+
+      if (activities.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ninguna actividad",
+        });
+      }
+
+      const otherActivities = await pool.query(
+        `SELECT activity.* 
+        FROM activity 
+        JOIN teacher ON activity.teacher_id = teacher.id 
+        JOIN program ON teacher.program_id = program.id 
+        WHERE program.id = $1 
+        AND activity.semester = $2 
+        AND activity.consolidated NOT ILIKE $3`,
+        [program_id, semester, `${mission}%`]
+      );
+
+      if (otherActivities.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ninguna actividad",
+        });
+      }
+
+      if (mission === "Docencia") {
+        reporteDocenciaPDF({
+          res,
+          teachersData: teacher.rows,
+          activitiesData: activities.rows,
+          otherActivitiesData: otherActivities.rows,
+          semester: semester,
+          program_name: teacher.rows[0].program_name,
+        });
+      } else if (mission === "Investigación") {
+        reporteInvestigacionPDF({
+          res,
+          teachersData: teacher.rows,
+          activitiesData: activities.rows,
+          otherActivitiesData: otherActivities.rows,
+          semester: semester,
+          program_name: teacher.rows[0].program_name,
+        });
+      } else if (mission === "Extensión") {
+        reporteExtensionPDF({
+          res,
+          teachersData: teacher.rows,
+          activitiesData: activities.rows,
+          otherActivitiesData: otherActivities.rows,
+          semester: semester,
+          program_name: teacher.rows[0].program_name,
+        });
+      } else if (mission === "OACA") {
+        reporteProcesosOACAPDF({
+          res,
+          teachersData: teacher.rows,
+          activitiesData: activities.rows,
+          otherActivitiesData: otherActivities.rows,
+          semester: semester,
+          program_name: teacher.rows[0].program_name,
+        });
+      } else if (mission === "ODA") {
+        reporteProcesosODAPDF({
+          res,
+          teachersData: teacher.rows,
+          activitiesData: activities.rows,
+          otherActivitiesData: otherActivities.rows,
+          semester: semester,
+          program_name: teacher.rows[0].program_name,
+        });
+      } else if (mission === "Comités") {
+        reporteComitesPDF({
+          res,
+          teachersData: teacher.rows,
+          activitiesData: activities.rows,
+          otherActivitiesData: otherActivities.rows,
+          semester: semester,
+          program_name: teacher.rows[0].program_name,
+        });
+      } else if (mission === "Otras") {
+        reporteOtrasPDF({
+          res,
+          teachersData: teacher.rows,
+          activitiesData: activities.rows,
+          otherActivitiesData: otherActivities.rows,
+          semester: semester,
+          program_name: teacher.rows[0].program_name,
+        });
+      }
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        error: error.message,
       });
     }
   },

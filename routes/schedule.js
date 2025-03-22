@@ -13,3 +13,5 @@ scheduleRouter.delete(
   "/:teacher_id/:semester/:day/:moment",
   scheduleController.delete
 );
+
+scheduleRouter.delete("/:teacher_id/:semester", scheduleController.deleteAll);
