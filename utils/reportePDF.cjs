@@ -56,6 +56,7 @@ const reportePDF = ({
   activitiesData,
   semester,
   program_name,
+  title,
 }) => {
   let tableDocenteActividad = [
     [
@@ -602,7 +603,7 @@ const reportePDF = ({
               },
 
               {
-                text: `FORMATO DE DISTRIBUCIÓN DE LA ACTIVIDAD DOCENTE ${semester}
+                text: `${title}
                 Programa: ${program_name}`,
                 style: "title",
                 margin: [0, 25, 0, 0],

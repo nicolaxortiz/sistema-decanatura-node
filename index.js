@@ -17,14 +17,12 @@ const port = process.env.PORT;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-//Body-parser para analizar el body de la peticion a traves de la url
 app.use(bodyParser.urlencoded({ extended: false }));
 
-//convertimos la peticion en un JSON
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", process.env.ORIGIN);
   res.header(
     "Access-Control-Allow-Headers",
     "Authorization, X-API-KEY, Origin, X-Requested-With, Content-type, Accept, Access-Control-Allow-Request-Method"

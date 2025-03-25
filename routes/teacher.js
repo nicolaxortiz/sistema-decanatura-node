@@ -7,7 +7,7 @@ export const teacherRouter = express.Router();
 teacherRouter.post("/sort", teacherController.getAll);
 teacherRouter.get("/:program_id/:document", teacherController.getbyDocument);
 teacherRouter.post("/login", teacherController.getbyCredentials);
-teacherRouter.post("/recovery", teacherController.getbyEmailandDocument);
+teacherRouter.post("/recovery", teacherController.getbyEmail);
 teacherRouter.post("/", teacherController.post);
 teacherRouter.put(
   "/:id",

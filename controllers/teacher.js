@@ -139,26 +139,32 @@ export const teacherController = {
     }
   },
 
-  getbyEmailandDocument: async (req, res) => {
-    let { email, document } = req.body;
+  getbyEmail: async (req, res) => {
+    let { email } = req.body;
 
     try {
-      const NewPassword = await generatePassword();
-
       const { rows } = await pool.query(
-        "SELECT * FROM teacher WHERE email = $1 and document = $2",
-        [email, document]
+        "SELECT * FROM teacher WHERE email = $1",
+        [email]
       );
 
       if (rows.length === 0) {
         return res.status(404).send({
           status: "error",
-          message: "No se encontró ningún docente con ese documento y correo",
+          message: "No se encontró ningún docente con ese correo electrónico",
         });
       }
 
+      const NewPassword = await generatePassword();
+      const encryptNewPassword = await encryptPassword(NewPassword);
+
+      const updateResult = await pool.query(
+        `UPDATE teacher SET password = $1 WHERE email = $2`,
+        [encryptNewPassword, email]
+      );
+
       const mailOptions = {
-        from: "carturotoloza@uts.edu.co",
+        from: process.env.EMAIL,
         to: email,
         subject: "Cambio de contraseña",
         text: "Se le notifica que su nueva contraseña es: " + NewPassword,

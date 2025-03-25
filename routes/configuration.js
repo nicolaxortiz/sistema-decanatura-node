@@ -12,3 +12,7 @@ configurationRouter.get(
   "/getByCampusId/:campus_id",
   configurationController.getByCampusId
 );
+
+configurationRouter.post("/", configurationController.post);
+
+configurationRouter.put("/update/:id", configurationController.update);

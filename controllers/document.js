@@ -99,7 +99,7 @@ export const documentController = {
   },
 
   getReporte: async (req, res) => {
-    let { program_id, semester } = req.params;
+    let { program_id, semester, title } = req.params;
     try {
       const teacher = await pool.query(
         "SELECT * FROM teacher WHERE program_id = $1 AND is_active = true ORDER BY id ASC",
@@ -134,6 +134,7 @@ export const documentController = {
         activitiesData: activities.rows,
         semester: semester,
         program_name: teacher.rows[0].program_name,
+        title: title,
       });
     } catch (error) {
       return res.status(500).send({
@@ -144,7 +145,7 @@ export const documentController = {
   },
 
   getReporteByMission: async (req, res) => {
-    let { program_id, semester, mission } = req.params;
+    let { program_id, semester, mission, title } = req.params;
 
     try {
       const teacher = await pool.query(
@@ -203,6 +204,7 @@ export const documentController = {
           otherActivitiesData: otherActivities.rows,
           semester: semester,
           program_name: teacher.rows[0].program_name,
+          title: title,
         });
       } else if (mission === "Investigación") {
         reporteInvestigacionPDF({
@@ -212,6 +214,7 @@ export const documentController = {
           otherActivitiesData: otherActivities.rows,
           semester: semester,
           program_name: teacher.rows[0].program_name,
+          title: title,
         });
       } else if (mission === "Extensión") {
         reporteExtensionPDF({
@@ -221,6 +224,7 @@ export const documentController = {
           otherActivitiesData: otherActivities.rows,
           semester: semester,
           program_name: teacher.rows[0].program_name,
+          title: title,
         });
       } else if (mission === "OACA") {
         reporteProcesosOACAPDF({
@@ -230,6 +234,7 @@ export const documentController = {
           otherActivitiesData: otherActivities.rows,
           semester: semester,
           program_name: teacher.rows[0].program_name,
+          title: title,
         });
       } else if (mission === "ODA") {
         reporteProcesosODAPDF({
@@ -239,6 +244,7 @@ export const documentController = {
           otherActivitiesData: otherActivities.rows,
           semester: semester,
           program_name: teacher.rows[0].program_name,
+          title: title,
         });
       } else if (mission === "Comités") {
         reporteComitesPDF({
@@ -248,6 +254,7 @@ export const documentController = {
           otherActivitiesData: otherActivities.rows,
           semester: semester,
           program_name: teacher.rows[0].program_name,
+          title: title,
         });
       } else if (mission === "Otras") {
         reporteOtrasPDF({
@@ -257,6 +264,7 @@ export const documentController = {
           otherActivitiesData: otherActivities.rows,
           semester: semester,
           program_name: teacher.rows[0].program_name,
+          title: title,
         });
       }
     } catch (error) {

@@ -1,5 +1,10 @@
 import { pool } from "../db.js";
-import { encryptPassword, compare } from "../utils/encrypt.js";
+import {
+  encryptPassword,
+  compare,
+  generatePassword,
+} from "../utils/encrypt.js";
+import { transporter } from "../config/nodemailer.js";
 import getPath from "../utils/downloadImage.cjs";
 const downloadImage = getPath;
 
@@ -32,9 +37,16 @@ export const coordinatorController = {
         message: "Coordinador creado correctamente",
       });
     } catch (error) {
+      if (error.code === "23505") {
+        return res.status(409).send({
+          status: "error",
+          message:
+            "Ya existe un coordinador con ese documento, email o programa",
+        });
+      }
       return res.status(500).send({
         status: "error",
-        message: "Error al crear al coordinador: " + error.message,
+        message: "Error al crear el coordinador: " + error.message,
       });
     }
   },
@@ -77,6 +89,59 @@ export const coordinatorController = {
           message: error.message,
         });
       }
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: error.message,
+      });
+    }
+  },
+
+  getbyEmail: async (req, res) => {
+    let { email } = req.body;
+
+    try {
+      const { rows } = await pool.query(
+        "SELECT * FROM coordinator WHERE email = $1",
+        [email]
+      );
+
+      if (rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message:
+            "No se encontró ningún coordinador con ese correo electrónico",
+        });
+      }
+
+      const NewPassword = await generatePassword();
+      const encryptNewPassword = await encryptPassword(NewPassword);
+
+      const updateResult = await pool.query(
+        `UPDATE coordinator SET password = $1 WHERE email = $2`,
+        [encryptNewPassword, email]
+      );
+
+      const mailOptions = {
+        from: process.env.EMAIL,
+        to: email,
+        subject: "Cambio de contraseña",
+        text: "Se le notifica que su nueva contraseña es: " + NewPassword,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(404).send({
+            status: "error",
+            message: "Error en el envío: " + error,
+          });
+        } else {
+          return res.status(200).send({
+            status: "success",
+            message: "Correo enviado correctamente",
+          });
+        }
+      });
     } catch (error) {
       return res.status(500).send({
         status: "error",
@@ -192,6 +257,14 @@ export const coordinatorController = {
         updatedTeacher: result.rows[0],
       });
     } catch (error) {
+      if (error.code === "23505") {
+        return res.status(409).send({
+          status: "error",
+          message:
+            "Ya existe un coordinador con ese documento, email o programa",
+        });
+      }
+
       return res.status(500).send({
         status: "error",
         message: "Error al actualizar el coordinador: " + error.message,

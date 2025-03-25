@@ -30,7 +30,7 @@ CREATE TABLE Coordinator (
     email VARCHAR(255) UNIQUE NOT NULL,
     password TEXT,
     signature TEXT,
-    program_id INT NOT NULL,
+    program_id INT UNIQUE NOT NULL,
     FOREIGN KEY (program_id) REFERENCES Program(id)
 );
 

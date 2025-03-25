@@ -5,6 +5,7 @@ import { coordinatorController } from "../controllers/coordinator.js";
 export const coordinatorRouter = express.Router();
 
 coordinatorRouter.get("/:campus_id", coordinatorController.getByCampusId);
+coordinatorRouter.post("/recovery", coordinatorController.getbyEmail);
 coordinatorRouter.post("/login", coordinatorController.getByCredential);
 coordinatorRouter.post(
   "/",
