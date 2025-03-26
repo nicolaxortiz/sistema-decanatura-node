@@ -74,7 +74,7 @@ export const formatController = {
         );
       }
 
-      if (rows.length === 0) {
+      if (rows.rows.length === 0) {
         return res.status(404).send({
           status: "error",
           message: "No se encontró ningún formato",

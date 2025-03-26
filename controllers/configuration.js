@@ -24,7 +24,8 @@ export const configurationController = {
       campus_name
         .toLowerCase()
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") + ".json";
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "_") + ".js";
 
     try {
       const result = await pool.query(
