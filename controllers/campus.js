@@ -56,13 +56,12 @@ export const campusController = {
       try {
         let verification = await compare(password, rows[0].password);
         if (verification) {
-          // La contraseña es válida
+          const { password, ...rest } = rows[0];
           return res.status(200).send({
             status: "success",
-            campus: rows[0],
+            campus: rest,
           });
         } else {
-          // La contraseña es inválida
           return res.status(404).send({
             status: "error",
             message:

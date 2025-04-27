@@ -70,13 +70,12 @@ export const coordinatorController = {
       try {
         let verification = await compare(password, rows[0].password);
         if (verification) {
-          // La contraseña es válida
+          const { password, ...rest } = rows[0];
           return res.status(200).send({
             status: "success",
-            coordinator: rows[0],
+            coordinator: rest,
           });
         } else {
-          // La contraseña es inválida
           return res.status(404).send({
             status: "error",
             message:

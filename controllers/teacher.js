@@ -31,12 +31,12 @@ export const teacherController = {
       let rows = [];
       if (name === "") {
         rows = await pool.query(
-          "SELECT * FROM teacher WHERE is_active = $1 and program_id = $2 ORDER BY id LIMIT $3 OFFSET $4;",
+          "SELECT teacher.id, teacher.first_name, teacher.last_name, teacher.faculty, teacher.campus, teacher.program_name, teacher.employment_type, teacher.is_active FROM teacher WHERE is_active = $1 and program_id = $2 ORDER BY id LIMIT $3 OFFSET $4;",
           [filter, program_id, limit, offset]
         );
       } else {
         rows = await pool.query(
-          `SELECT * FROM teacher WHERE is_active = $1 and program_id = $2 AND CONCAT(first_name, ' ', last_name) ILIKE '%${name}%'`,
+          `SELECT teacher.id, teacher.first_name, teacher.last_name, teacher.faculty, teacher.campus, teacher.program_name, teacher.employment_type, teacher.is_active FROM teacher WHERE is_active = $1 and program_id = $2 AND CONCAT(first_name, ' ', last_name) ILIKE '%${name}%'`,
           [filter, program_id]
         );
       }
@@ -112,13 +112,12 @@ export const teacherController = {
       try {
         let verification = await compare(password, rows[0].password);
         if (verification) {
-          // La contraseña es válida
+          const { password, ...rest } = rows[0];
           return res.status(200).send({
             status: "success",
-            teacher: rows[0],
+            teacher: rest,
           });
         } else {
-          // La contraseña es inválida
           return res.status(404).send({
             status: "error",
             message:

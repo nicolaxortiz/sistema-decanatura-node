@@ -2,61 +2,61 @@ import { Activity } from "../models/activity.js";
 import { pool } from "../db.js";
 
 export const activityController = {
-  getAll: async (req, res) => {
-    let { program_id, semester } = req.params;
+  // getAll: async (req, res) => {
+  //   let { program_id, semester } = req.params;
 
-    try {
-      const { rows } = await pool.query(
-        "SELECT * FROM activity JOIN teacher ON activity.teacher_id = teacher.id JOIN program ON teacher.program_id = program.id WHERE program.id = $1 AND activity.semester = $2",
-        [program_id, semester]
-      );
+  //   try {
+  //     const { rows } = await pool.query(
+  //       "SELECT * FROM activity JOIN teacher ON activity.teacher_id = teacher.id JOIN program ON teacher.program_id = program.id WHERE program.id = $1 AND activity.semester = $2",
+  //       [program_id, semester]
+  //     );
 
-      if (rows.length === 0) {
-        return res.status(404).send({
-          status: "error",
-          message: "No se encontró ninguna actividad",
-        });
-      }
+  //     if (rows.length === 0) {
+  //       return res.status(404).send({
+  //         status: "error",
+  //         message: "No se encontró ninguna actividad",
+  //       });
+  //     }
 
-      return res.status(200).send({
-        status: "success",
-        activity: rows,
-      });
-    } catch (error) {
-      return res.status(500).send({
-        status: "error",
-        message: "Error al listar las actividades: " + error.message,
-      });
-    }
-  },
+  //     return res.status(200).send({
+  //       status: "success",
+  //       activity: rows,
+  //     });
+  //   } catch (error) {
+  //     return res.status(500).send({
+  //       status: "error",
+  //       message: "Error al listar las actividades: " + error.message,
+  //     });
+  //   }
+  // },
 
-  getbyIdDocente: async (req, res) => {
-    let { id } = req.params;
+  // getbyIdDocente: async (req, res) => {
+  //   let { id } = req.params;
 
-    try {
-      const { rows } = await pool.query(
-        "SELECT * FROM activity WHERE teacher_id = $1",
-        [id]
-      );
+  //   try {
+  //     const { rows } = await pool.query(
+  //       "SELECT * FROM activity WHERE teacher_id = $1",
+  //       [id]
+  //     );
 
-      if (rows.length === 0) {
-        return res.status(404).send({
-          status: "error",
-          message: "No se encontró ninguna actividad",
-        });
-      }
+  //     if (rows.length === 0) {
+  //       return res.status(404).send({
+  //         status: "error",
+  //         message: "No se encontró ninguna actividad",
+  //       });
+  //     }
 
-      return res.status(200).send({
-        status: "success",
-        activities: rows,
-      });
-    } catch (error) {
-      return res.status(500).send({
-        status: "error",
-        message: "Error al buscar las actividades: " + error,
-      });
-    }
-  },
+  //     return res.status(200).send({
+  //       status: "success",
+  //       activities: rows,
+  //     });
+  //   } catch (error) {
+  //     return res.status(500).send({
+  //       status: "error",
+  //       message: "Error al buscar las actividades: " + error,
+  //     });
+  //   }
+  // },
 
   getbyIdDocenteAndSemester: async (req, res) => {
     let { id, semester } = req.params;

@@ -15,4 +15,4 @@ configurationRouter.get(
 
 configurationRouter.post("/", configurationController.post);
 
-configurationRouter.put("/update/:id", configurationController.update);
+// configurationRouter.put("/update/:id", configurationController.update);
