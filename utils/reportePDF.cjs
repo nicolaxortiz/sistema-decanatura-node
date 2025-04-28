@@ -933,6 +933,7 @@ const reportePDF = ({
     "Content-Disposition",
     `filename="Reporte de distribución de la actividad docente ${semester} - ${program_name}.pdf"`
   );
+  res.setHeader("Content-Type", "application/pdf");
 
   const pdfDoc = printer.createPdfKitDocument(docDefinition);
   pdfDoc.pipe(res);

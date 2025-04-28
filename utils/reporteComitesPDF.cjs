@@ -398,6 +398,7 @@ const reportePDF = ({
     "Content-Disposition",
     `filename="Reporte de comités ${semester} - ${program_name}.pdf"`
   );
+  res.setHeader("Content-Type", "application/pdf");
 
   const pdfDoc = printer.createPdfKitDocument(docDefinition);
   pdfDoc.pipe(res);

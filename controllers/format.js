@@ -31,7 +31,7 @@ export const formatController = {
   },
 
   getByProgramIdAndSemester: async (req, res) => {
-    let { id, semester, searchName, actualPage } = req.body;
+    let { id, semester, searchName, actualPage, filter } = req.body;
 
     const limit = 8;
     const offset = (actualPage - 1) * limit;
@@ -40,8 +40,8 @@ export const formatController = {
       const count = await pool.query(
         `SELECT COUNT(*) as total_count 
         FROM format INNER JOIN teacher ON format.teacher_id = teacher.id 
-        WHERE teacher.program_id = $1 AND format.semester = $2;`,
-        [id, semester]
+        WHERE teacher.program_id = $1 AND format.semester = $2 AND format.is_finish = $3;`,
+        [id, semester, filter]
       );
 
       if (count.rows.length === 0) {
@@ -58,9 +58,9 @@ export const formatController = {
           SELECT format.*, teacher.document, teacher.first_name, teacher.last_name, teacher.employment_type, teacher.campus
           FROM format
           INNER JOIN teacher ON format.teacher_id = teacher.id
-          WHERE teacher.program_id = $1 AND format.semester = $2 ORDER BY id LIMIT $3 OFFSET $4;
+          WHERE teacher.program_id = $1 AND format.semester = $2 AND format.is_finish = $3 ORDER BY id LIMIT $4 OFFSET $5;
           `,
-          [id, semester, limit, offset]
+          [id, semester, filter, limit, offset]
         );
       } else {
         rows = await pool.query(
@@ -69,8 +69,9 @@ export const formatController = {
         INNER JOIN teacher ON format.teacher_id = teacher.id
         WHERE teacher.program_id = $1 
         AND format.semester = $2 
+        AND format.is_finish = $3
         AND CONCAT(teacher.first_name, ' ', teacher.last_name) ILIKE '%${searchName}%'`,
-          [id, semester]
+          [id, semester, filter]
         );
       }
 

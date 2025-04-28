@@ -39,7 +39,7 @@ export const scheduleController = {
     }
   },
 
-  geybyTeacherIdAndSemester: async (req, res) => {
+  getByTeacherIdAndSemester: async (req, res) => {
     let { id, semester } = req.params;
 
     try {

@@ -1,4 +1,5 @@
 import { pool } from "../db.js";
+import jwt from "jsonwebtoken";
 import {
   encryptPassword,
   compare,
@@ -112,10 +113,18 @@ export const teacherController = {
       try {
         let verification = await compare(password, rows[0].password);
         if (verification) {
+          const token = jwt.sign(
+            { email, role: rows[0].role },
+            process.env.JWT_SECRET,
+            {
+              expiresIn: "1h",
+            }
+          );
           const { password, ...rest } = rows[0];
           return res.status(200).send({
             status: "success",
             teacher: rest,
+            token,
           });
         } else {
           return res.status(404).send({

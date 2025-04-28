@@ -1,9 +1,23 @@
 import express from "express";
+import {
+  verifyToken,
+  verifyCoordinator,
+  verifyTeacher,
+} from "../middlewares/jwt.middleware.js";
 import { formatController } from "../controllers/format.js";
 
 export const formatRouter = express.Router();
 
-formatRouter.get("/:id/:semester", formatController.getByTeacherIdAndSemester);
-formatRouter.post("/getAll", formatController.getByProgramIdAndSemester);
-formatRouter.post("/", formatController.post);
-formatRouter.put("/:id", formatController.update);
+formatRouter.get(
+  "/:id/:semester",
+  verifyToken,
+  formatController.getByTeacherIdAndSemester
+);
+formatRouter.post(
+  "/getAll",
+  verifyToken,
+  verifyCoordinator,
+  formatController.getByProgramIdAndSemester
+);
+formatRouter.post("/", verifyToken, formatController.post);
+formatRouter.put("/:id", verifyToken, formatController.update);

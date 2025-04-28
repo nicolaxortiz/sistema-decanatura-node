@@ -1,5 +1,6 @@
 import express from "express";
 import { activityController } from "../controllers/activity.js";
+import { verifyToken } from "../middlewares/jwt.middleware.js";
 
 export const activityRouter = express.Router();
 
@@ -7,8 +8,9 @@ export const activityRouter = express.Router();
 // activityRouter.get("/getById/:id", activityController.getbyIdDocente);
 activityRouter.get(
   "/getByIdAndSemester/:id/:semester",
+  verifyToken,
   activityController.getbyIdDocenteAndSemester
 );
-activityRouter.post("/save", activityController.post);
-activityRouter.put("/:id", activityController.update);
-activityRouter.delete("/:id", activityController.delete);
+activityRouter.post("/save", verifyToken, activityController.post);
+activityRouter.put("/:id", verifyToken, activityController.update);
+activityRouter.delete("/:id", verifyToken, activityController.delete);

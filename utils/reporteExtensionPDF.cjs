@@ -440,6 +440,7 @@ const reportePDF = ({
     "Content-Disposition",
     `filename="Reporte de extensión ${semester} - ${program_name}.pdf"`
   );
+  res.setHeader("Content-Type", "application/pdf");
 
   const pdfDoc = printer.createPdfKitDocument(docDefinition);
   pdfDoc.pipe(res);

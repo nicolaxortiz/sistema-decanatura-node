@@ -1,6 +1,3 @@
-const axios = require("axios");
-const fs = require("fs");
-const path = require("path");
 const PdfPrinter = require("pdfmake/src/printer");
 const Logo = __dirname + "/logoUTS.png";
 const nullSignature = __dirname + "/null_signature.png";
@@ -46,7 +43,9 @@ function convertirHora(hora) {
 }
 
 function convertirFecha(fecha) {
-  if (fecha !== null) {
+  console.log(fecha);
+
+  if (fecha !== null && fecha !== undefined) {
     const fechaObj = new Date(fecha);
 
     const day = fechaObj.getDate().toString().padStart(2, "0");
@@ -1153,11 +1152,11 @@ const generatePDF = ({
       lineHeight: 1.3,
     },
   };
-
   res.setHeader(
     "Content-Disposition",
     `filename="F-DC-54-${userData.first_name} ${userData.last_name} - Semestre${activityData[0].semester}.pdf"`
   );
+  res.setHeader("Content-Type", "application/pdf");
 
   const pdfDoc = printer.createPdfKitDocument(docDefinition);
   pdfDoc.pipe(res);
