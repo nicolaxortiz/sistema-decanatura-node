@@ -177,12 +177,13 @@ const reportePDF = ({
 
     if (teacher.employment_type === "Planta") {
       tipoContrato = "PP";
-    } else if (teacher.employment_type === "Tiempo Completo") {
+    } else if (teacher.employment_type === "Tiempo completo") {
       tipoContrato = "TC";
+    } else if (teacher.employment_type === null) {
+      tipoContrato = "";
     } else {
       tipoContrato = "MT";
     }
-
     tableDocenteActividad.push([
       {
         text: `${teacher.first_name} ${teacher.last_name}`,
