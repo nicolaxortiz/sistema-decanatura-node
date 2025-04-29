@@ -30,7 +30,6 @@ teacherRouter.put(
     { name: "photo", maxCount: 1 },
     { name: "signature", maxCount: 1 },
   ]),
-  verifyToken,
   teacherController.update
 );
 teacherRouter.put("/state/:id", verifyToken, teacherController.updateState);
