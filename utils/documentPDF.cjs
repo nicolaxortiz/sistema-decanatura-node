@@ -225,7 +225,7 @@ const generatePDF = ({
     { text: countHours, style: "data" },
     { text: countHours, style: "data" },
     { text: countHours, style: "data" },
-    { text: "", style: "header" },
+    { text: countHours * 17, style: "header" },
   ]);
 
   let tableHorario = [
@@ -423,7 +423,7 @@ const generatePDF = ({
         layout: "noBorders",
         table: {
           widths: ["auto", "*", "auto"],
-
+          dontBreakRows: true,
           heights: 1,
           body: [
             [
@@ -446,7 +446,7 @@ const generatePDF = ({
                   margin: [0, 25, 0, 0],
                 },
                 {
-                  text: "PLAN DE TRABAJO DOCENTES PLANTA, TIEMPO COMPLETO, MEDIO TIEMPO ",
+                  text: "PLAN DE TRABAJO DOCENTES DE CARRERA, TIEMPO COMPLETO, MEDIO TIEMPO",
                   style: "title",
                 },
               ],
@@ -463,7 +463,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*"],
           heights: 1,
           body: [
@@ -479,7 +479,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*", "*", "*", "*"],
           heights: 1,
           body: [
@@ -525,7 +525,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*", "*", "*", "*", "*", "*"],
           heights: 1,
           body: [
@@ -547,7 +547,7 @@ const generatePDF = ({
                 style: "header",
               },
               {
-                text: `Escalafón docente`,
+                text: `Categoría docente`,
                 style: "header",
               },
               {
@@ -587,7 +587,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*", "*", "*"],
           heights: 1,
           body: [
@@ -601,7 +601,7 @@ const generatePDF = ({
                 style: "header",
               },
               {
-                text: `Correo electronico`,
+                text: `Correo electrónico`,
                 style: "header",
               },
             ],
@@ -625,7 +625,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*"],
           heights: 1,
           body: [
@@ -641,6 +641,7 @@ const generatePDF = ({
 
       {
         table: {
+          dontBreakRows: true,
           widths: ["auto", "*", "auto", "auto", "*", "auto", "*", "auto", "*"],
           heights: 1,
           body: [
@@ -688,13 +689,19 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*"],
           heights: 1,
           body: [
             [
               {
                 text: `LISTA DE ACTIVIDADES`,
+                style: "headerTitle",
+              },
+            ],
+            [
+              {
+                text: `Docencia, Investigación, Extensión, Otros`,
                 style: "headerTitle",
               },
             ],
@@ -705,7 +712,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["auto", "*", "auto", "*", "auto", "auto", "auto"],
           heights: 1,
           body: tableActividades,
@@ -714,7 +721,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*", "auto"],
           heights: 1,
           body: [
@@ -735,7 +742,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*"],
           heights: 1,
           body: [
@@ -757,7 +764,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: [
             "*",
             "*",
@@ -786,7 +793,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*", "auto"],
           heights: 1,
           body: [
@@ -817,7 +824,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*"],
           heights: 1,
           body: [
@@ -833,7 +840,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["auto", "*", "auto", "auto", "*"],
           heights: 1,
           body: tableProductos,
@@ -843,7 +850,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*"],
           heights: 1,
           body: [
@@ -859,7 +866,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*", "*", "*", "*", "*", "*", "*"],
           heights: 1,
           body: tableHorario,
@@ -868,7 +875,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*", "auto"],
           heights: 1,
           body: [
@@ -899,7 +906,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*"],
           heights: 1,
           body: [
@@ -922,7 +929,7 @@ const generatePDF = ({
       },
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*", "*", "*"],
           heights: 1,
           body: [
@@ -987,7 +994,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*"],
           heights: 1,
           body: [
@@ -1005,7 +1012,7 @@ const generatePDF = ({
 
       {
         table: {
-          headerRows: 1,
+          dontBreakRows: true,
           widths: ["*", "*", "*", "*"],
           heights: 1,
           body: [
@@ -1033,7 +1040,7 @@ const generatePDF = ({
                 style: "data",
               },
               {
-                text: "Carlos Arturo Toloza Valencia - Nicolas Santiago Ortiz Pedraza",
+                text: "Nicolas Santiago Ortiz Pedraza",
                 style: "data",
               },
               {

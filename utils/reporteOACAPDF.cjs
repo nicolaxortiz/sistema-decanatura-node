@@ -163,8 +163,8 @@ const reportePDF = ({
 
     let tipoContrato = "";
 
-    if (teacher.employment_type === "Planta") {
-      tipoContrato = "PP";
+    if (teacher.employment_type === "Carrera") {
+      tipoContrato = "DC";
     } else if (teacher.employment_type === "Tiempo completo") {
       tipoContrato = "TC";
     } else if (teacher.employment_type === null) {

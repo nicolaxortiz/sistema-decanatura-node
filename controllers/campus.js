@@ -120,7 +120,28 @@ export const campusController = {
         from: process.env.EMAIL,
         to: email,
         subject: "Cambio de contraseña",
-        text: "Se le notifica que su nueva contraseña es: " + NewPassword,
+        text: `Estimado usuario,
+      
+      Se le notifica que su nueva contraseña es: ${NewPassword}
+      
+      En caso de persistir problemas con la contraseña, se solicita acudir a la coordinación correspondiente para gestionar la revisión de la cuenta. Además, se aconseja no mantener activa la contraseña temporal y proceder a cambiarla a la mayor brevedad posible.
+      
+      Atentamente,
+      [Nombre de tu organización o sistema]`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #333;">Cambio de contraseña</h2>
+            <p>Estimado usuario,</p>
+            <p>Se le notifica que su nueva contraseña es: <strong>${NewPassword}</strong></p>
+            <p>En caso de persistir problemas con la contraseña, se solicita acudir a la coordinación correspondiente para gestionar la revisión de la cuenta.</p>
+            <p>Además, se aconseja no mantener activa la contraseña temporal y proceder a cambiarla a la mayor brevedad posible.</p>
+            <p>Atentamente,<br><strong> Sistema de informe docente F-DC-54</strong></p>
+            <hr>
+            <p style="font-size: 12px; color: #777;">
+              Este es un mensaje automático, por favor no responda directamente a este correo.
+            </p>
+          </div>
+        `,
       };
 
       transporter.sendMail(mailOptions, (error, info) => {
