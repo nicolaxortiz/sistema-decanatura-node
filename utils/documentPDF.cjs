@@ -43,8 +43,6 @@ function convertirHora(hora) {
 }
 
 function convertirFecha(fecha) {
-  console.log(fecha);
-
   if (fecha !== null && fecha !== undefined) {
     const fechaObj = new Date(fecha);
 
@@ -422,7 +420,7 @@ const generatePDF = ({
       {
         layout: "noBorders",
         table: {
-          widths: ["auto", "*", "auto"],
+          widths: ["auto", "*", "auto", "auto"],
           dontBreakRows: true,
           heights: 1,
           body: [
@@ -452,9 +450,15 @@ const generatePDF = ({
               ],
               {
                 image: imgPersonal,
-                fit: [80, 80],
+                fit: [100, 100],
                 margin: [0, 0, 10, 5],
                 style: "fotoPersonal",
+              },
+
+              {
+                text: "VERSIÓN: 7.0",
+                style: "title",
+                margin: [0, 50, 10, 0],
               },
             ],
           ],
@@ -1080,7 +1084,7 @@ const generatePDF = ({
       title: {
         alignment: "center",
         margin: [0, 5, 0, 2],
-        fontSize: 10,
+        fontSize: 12,
       },
       center: {
         alignment: "center",

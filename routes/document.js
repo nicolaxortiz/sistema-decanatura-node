@@ -14,6 +14,12 @@ documentRouter.get(
 );
 
 documentRouter.get(
+  "/pdf/:semester/:id/:mission",
+  verifyToken,
+  documentController.getDocumentByMission
+);
+
+documentRouter.get(
   "/pdfFinal/:program_id/:semester/:title",
   verifyToken,
   verifyCoordinator,

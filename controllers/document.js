@@ -98,6 +98,93 @@ export const documentController = {
     }
   },
 
+  getDocumentByMission: async (req, res) => {
+    let { semester, id, mission } = req.params;
+    try {
+      const teacher = await pool.query("SELECT * FROM teacher WHERE id = $1", [
+        id,
+      ]);
+
+      if (teacher.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún usuario",
+        });
+      }
+
+      const coordinator = await pool.query(
+        "SELECT * FROM coordinator WHERE program_id = $1",
+        [teacher.rows[0].program_id]
+      );
+
+      if (coordinator.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún coordinador ",
+        });
+      }
+
+      const activity = await pool.query(
+        `SELECT * FROM activity 
+         WHERE teacher_id = $1 
+         AND semester = $2 
+         AND EXISTS (
+           SELECT 1 
+           FROM activity a2 
+           WHERE a2.teacher_id = $1 
+           AND a2.mission = $3
+         )
+         ORDER BY id ASC`,
+        [id, semester, mission]
+      );
+
+      if (activity.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: `No se encontraron actividades para el semestre ${semester} con al menos una actividad de la misión ${mission}`,
+        });
+      }
+
+      const schedule = await pool.query(
+        "SELECT * FROM schedule WHERE teacher_id = $1 AND semester = $2 ORDER BY id ASC",
+        [id, semester]
+      );
+
+      if (schedule.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún horario del semestre actual",
+        });
+      }
+
+      const format = await pool.query(
+        "SELECT * FROM format WHERE teacher_id = $1 AND semester = $2",
+        [id, semester]
+      );
+
+      if (format.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún formato del docente",
+        });
+      }
+
+      generatePDF({
+        res,
+        userData: teacher.rows[0],
+        coordinatorData: coordinator.rows[0],
+        activityData: activity.rows,
+        scheduleData: schedule.rows,
+        formatData: format.rows[0],
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        error: error,
+      });
+    }
+  },
+
   getReporte: async (req, res) => {
     let { program_id, semester, title } = req.params;
     try {

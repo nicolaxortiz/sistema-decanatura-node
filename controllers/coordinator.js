@@ -12,11 +12,6 @@ const downloadImage = getPath;
 export const coordinatorController = {
   post: async (req, res) => {
     const { document, first_name, last_name, email, program_id } = req.body;
-    const signaturePic = req.files?.signature;
-
-    if (signaturePic && signaturePic.length > 0) {
-      downloadImage(document, signaturePic[0], "firma");
-    }
 
     const initialPassword = await encryptPassword(document.toString());
 
@@ -284,7 +279,7 @@ export const coordinatorController = {
       return res.status(200).send({
         status: "success",
         message: "Coordinador actualizado correctamente",
-        updatedTeacher: result.rows[0],
+        updatedCoordinator: result.rows[0],
       });
     } catch (error) {
       if (error.code === "23505") {

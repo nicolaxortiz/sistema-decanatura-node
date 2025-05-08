@@ -83,7 +83,9 @@ CREATE TABLE Schedule (
     moment VARCHAR(20) NOT NULL,
     observation TEXT,
     teacher_id INT NOT NULL,
+    activity_id INT NOT NULL,
     FOREIGN KEY (teacher_id) REFERENCES Teacher(id)
+    FOREIGN KEY (activity_id) REFERENCES Activity(id)
 );
 
 CREATE TABLE Format (

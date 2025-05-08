@@ -20,7 +20,6 @@ coordinatorRouter.post("/recovery", coordinatorController.getbyEmail);
 coordinatorRouter.post("/login", coordinatorController.getByCredential);
 coordinatorRouter.post(
   "/",
-  upload.fields([{ name: "signature", maxCount: 1 }]),
   verifyToken,
   verifyAdmin,
   coordinatorController.post
@@ -28,5 +27,6 @@ coordinatorRouter.post(
 coordinatorRouter.put(
   "/:id",
   upload.fields([{ name: "signature", maxCount: 1 }]),
+  verifyToken,
   coordinatorController.update
 );

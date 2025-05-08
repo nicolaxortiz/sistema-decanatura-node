@@ -62,6 +62,16 @@ export const formatController = {
           `,
           [id, semester, filter, limit, offset]
         );
+      } else if (searchName === null && actualPage === null) {
+        rows = await pool.query(
+          `
+          SELECT format.*, teacher.document, teacher.first_name, teacher.last_name, teacher.employment_type, teacher.campus
+          FROM format
+          INNER JOIN teacher ON format.teacher_id = teacher.id
+          WHERE teacher.program_id = $1 AND format.semester = $2 AND format.is_finish = $3 ORDER BY id;
+          `,
+          [id, semester, filter]
+        );
       } else {
         rows = await pool.query(
           `SELECT format.*, teacher.document, teacher.first_name, teacher.last_name, teacher.employment_type, teacher.campus
