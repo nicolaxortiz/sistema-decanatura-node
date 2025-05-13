@@ -22,13 +22,11 @@ documentRouter.get(
 documentRouter.get(
   "/pdfFinal/:program_id/:semester/:title",
   verifyToken,
-  verifyCoordinator,
   documentController.getReporte
 );
 
 documentRouter.get(
   "/pdfMission/:program_id/:semester/:mission/:title",
   verifyToken,
-  verifyCoordinator,
   documentController.getReporteByMission
 );

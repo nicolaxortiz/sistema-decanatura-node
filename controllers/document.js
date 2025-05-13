@@ -46,6 +46,17 @@ export const documentController = {
         });
       }
 
+      const dean = await pool.query("SELECT * FROM dean WHERE faculty = $1", [
+        teacher.rows[0].faculty,
+      ]);
+
+      if (dean.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún decano",
+        });
+      }
+
       const activity = await pool.query(
         "SELECT * FROM activity WHERE teacher_id = $1 AND semester = $2 ORDER BY id ASC",
         [id, semester]
@@ -86,6 +97,7 @@ export const documentController = {
         res,
         userData: teacher.rows[0],
         coordinatorData: coordinator.rows[0],
+        deanData: dean.rows[0],
         activityData: activity.rows,
         scheduleData: schedule.rows,
         formatData: format.rows[0],
@@ -121,6 +133,17 @@ export const documentController = {
         return res.status(404).send({
           status: "error",
           message: "No se encontró ningún coordinador ",
+        });
+      }
+
+      const dean = await pool.query("SELECT * FROM dean WHERE faculty = $1", [
+        teacher.rows[0].faculty,
+      ]);
+
+      if (dean.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún decano",
         });
       }
 
@@ -173,6 +196,7 @@ export const documentController = {
         res,
         userData: teacher.rows[0],
         coordinatorData: coordinator.rows[0],
+        deanData: dean.rows[0],
         activityData: activity.rows,
         scheduleData: schedule.rows,
         formatData: format.rows[0],

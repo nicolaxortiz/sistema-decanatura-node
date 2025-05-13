@@ -68,7 +68,7 @@ export const formatController = {
           SELECT format.*, teacher.document, teacher.first_name, teacher.last_name, teacher.employment_type, teacher.campus
           FROM format
           INNER JOIN teacher ON format.teacher_id = teacher.id
-          WHERE teacher.program_id = $1 AND format.semester = $2 AND format.is_finish = $3 ORDER BY id;
+          WHERE teacher.program_id = $1 AND format.semester = $2 AND format.is_coord_signed = $3 ORDER BY id;
           `,
           [id, semester, filter]
         );
@@ -82,6 +82,89 @@ export const formatController = {
         AND format.is_finish = $3
         AND CONCAT(teacher.first_name, ' ', teacher.last_name) ILIKE '%${searchName}%'`,
           [id, semester, filter]
+        );
+      }
+
+      if (rows.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún formato",
+        });
+      }
+
+      return res.status(200).send({
+        status: "success",
+        message: "Formato encontrado",
+        count: count.rows[0].total_count,
+        format: rows.rows,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: "No se ha podido listar el formato: " + error.message,
+      });
+    }
+  },
+
+  getSignedByProgramIdAndSemester: async (req, res) => {
+    let {
+      id,
+      semester,
+      searchName,
+      actualPage,
+      is_coord_signed,
+      is_dean_signed,
+    } = req.body;
+
+    const limit = 8;
+    const offset = (actualPage - 1) * limit;
+
+    try {
+      const count = await pool.query(
+        `SELECT COUNT(*) as total_count 
+        FROM format INNER JOIN teacher ON format.teacher_id = teacher.id 
+        WHERE teacher.program_id = $1 AND format.semester = $2 AND format.is_coord_signed = $3;`,
+        [id, semester, is_coord_signed]
+      );
+
+      if (count.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún formato",
+        });
+      }
+
+      let rows = [];
+      if (searchName === "") {
+        rows = await pool.query(
+          `
+          SELECT format.*, teacher.document, teacher.first_name, teacher.last_name, teacher.employment_type, teacher.campus
+          FROM format
+          INNER JOIN teacher ON format.teacher_id = teacher.id
+          WHERE teacher.program_id = $1 AND format.semester = $2 AND format.is_coord_signed = $3 ORDER BY id LIMIT $4 OFFSET $5;
+          `,
+          [id, semester, is_coord_signed, limit, offset]
+        );
+      } else if (searchName === null && actualPage === null) {
+        rows = await pool.query(
+          `
+          SELECT format.*, teacher.document, teacher.first_name, teacher.last_name, teacher.employment_type, teacher.campus
+          FROM format
+          INNER JOIN teacher ON format.teacher_id = teacher.id
+          WHERE teacher.program_id = $1 AND format.semester = $2 AND format.is_coord_signed = $3 ORDER BY id;
+          `,
+          [id, semester, is_coord_signed]
+        );
+      } else {
+        rows = await pool.query(
+          `SELECT format.*, teacher.document, teacher.first_name, teacher.last_name, teacher.employment_type, teacher.campus
+        FROM format
+        INNER JOIN teacher ON format.teacher_id = teacher.id
+        WHERE teacher.program_id = $1 
+        AND format.semester = $2 
+        AND format.is_coord_signed = $3
+        AND CONCAT(teacher.first_name, ' ', teacher.last_name) ILIKE '%${searchName}%'`,
+          [id, semester, is_coord_signed]
         );
       }
 

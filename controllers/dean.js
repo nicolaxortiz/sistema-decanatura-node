@@ -9,40 +9,55 @@ import { transporter } from "../config/nodemailer.js";
 import getPath from "../utils/downloadImage.cjs";
 const downloadImage = getPath;
 
-export const coordinatorController = {
+export const deanController = {
   post: async (req, res) => {
-    const { document, first_name, last_name, email, program_id } = req.body;
+    const {
+      document,
+      first_name,
+      last_name,
+      email,
+      password,
+      faculty,
+      campus_id,
+    } = req.body;
 
     const initialPassword = await encryptPassword(document.toString());
 
     try {
       const query = await pool.query(
-        "INSERT INTO coordinator (document, first_name, last_name, email, password, program_id) VALUES ($1, $2, $3, $4, $5, $6)",
-        [document, first_name, last_name, email, initialPassword, program_id]
+        "INSERT INTO dean (document, first_name, last_name, email, password, faculty, campus_id) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+        [
+          document,
+          first_name,
+          last_name,
+          email,
+          initialPassword,
+          faculty,
+          campus_id,
+        ]
       );
 
       if (query.rowCount === 0) {
         return res.status(404).send({
           status: "error",
-          message: "No se pudo crear el coordinador",
+          message: "No se pudo crear el decano",
         });
       }
 
       return res.status(200).send({
         status: "success",
-        message: "Coordinador creado correctamente",
+        message: "Decano creado correctamente",
       });
     } catch (error) {
       if (error.code === "23505") {
         return res.status(409).send({
           status: "error",
-          message:
-            "Ya existe un coordinador con ese documento, email o programa",
+          message: "Ya existe un decano con ese documento, email o facultad",
         });
       }
       return res.status(500).send({
         status: "error",
-        message: "Error al crear el coordinador: " + error.message,
+        message: "Error al crear el decano: " + error.message,
       });
     }
   },
@@ -51,10 +66,9 @@ export const coordinatorController = {
     let { email, password } = req.body;
 
     try {
-      const { rows } = await pool.query(
-        "SELECT * FROM coordinator WHERE email = $1",
-        [email]
-      );
+      const { rows } = await pool.query("SELECT * FROM dean WHERE email = $1", [
+        email,
+      ]);
 
       if (rows.length === 0) {
         return res.status(404).send({
@@ -77,7 +91,7 @@ export const coordinatorController = {
           const { password, ...rest } = rows[0];
           return res.status(200).send({
             status: "success",
-            coordinator: rest,
+            dean: rest,
             token,
           });
         } else {
@@ -105,16 +119,14 @@ export const coordinatorController = {
     let { email } = req.body;
 
     try {
-      const { rows } = await pool.query(
-        "SELECT * FROM coordinator WHERE email = $1",
-        [email]
-      );
+      const { rows } = await pool.query("SELECT * FROM dean WHERE email = $1", [
+        email,
+      ]);
 
       if (rows.length === 0) {
         return res.status(404).send({
           status: "error",
-          message:
-            "No se encontró ningún coordinador con ese correo electrónico",
+          message: "No se encontró ningún decano con ese correo electrónico",
         });
       }
 
@@ -122,7 +134,7 @@ export const coordinatorController = {
       const encryptNewPassword = await encryptPassword(NewPassword);
 
       const updateResult = await pool.query(
-        `UPDATE coordinator SET password = $1 WHERE email = $2`,
+        `UPDATE dean SET password = $1 WHERE email = $2`,
         [encryptNewPassword, email]
       );
 
@@ -184,46 +196,37 @@ export const coordinatorController = {
     try {
       const count = await pool.query(
         `SELECT COUNT(*) as total_count 
-        FROM coordinator
-        JOIN program ON coordinator.program_id = program.id
-        WHERE program.campus_id = $1;`,
+        FROM dean
+        WHERE campus_id = $1;`,
         [campus_id]
       );
 
       if (count.rows.length === 0) {
         return res.status(404).send({
           status: "error",
-          message: "No se encontró ningún coordinador",
+          message: "No se encontró ningún decano",
         });
       }
 
       const { rows } = await pool.query(
-        `SELECT 
-        coordinator.id AS coordinator_id,
-        coordinator.document,
-        coordinator.first_name,
-        coordinator.last_name,
-        coordinator.email,
-        program.id AS program_id,
-        program.name AS program_name
-        FROM coordinator
-        JOIN program ON coordinator.program_id = program.id
-        WHERE program.campus_id = $1 
-        ORDER BY coordinator.id LIMIT $2 OFFSET $3;`,
+        `SELECT id, first_name, last_name, document, email, faculty
+        FROM dean
+        WHERE campus_id = $1
+        ORDER BY dean.id LIMIT $2 OFFSET $3;`,
         [campus_id, limit, offset]
       );
 
       if (rows.length === 0) {
         return res.status(404).send({
           status: "error",
-          message: "No se encontró ningún coordinador",
+          message: "No se encontró ningún decano",
         });
       }
 
       return res.status(200).send({
         status: "success",
         count: count.rows[0].total_count,
-        coordinators: rows,
+        deans: rows,
       });
     } catch (error) {
       return res.status(500).send({
@@ -241,13 +244,13 @@ export const coordinatorController = {
     try {
       if (signaturePic && signaturePic.length > 0) {
         const response = await pool.query(
-          "SELECT document FROM coordinator where id = $1",
+          "SELECT document FROM dean where id = $1",
           [id]
         );
         if (response.rows.length === 0) {
           return res.status(404).send({
             status: "error",
-            message: "No se encontró ningún coordinador",
+            message: "No se encontró ningún decano",
           });
         }
         const document = response.rows[0].document;
@@ -263,7 +266,7 @@ export const coordinatorController = {
 
       const result = await pool.query(
         `
-          UPDATE coordinator 
+          UPDATE dean 
           SET ${fields
             .map((field, index) => `"${field}" = $${index + 1}`)
             .join(", ")}
@@ -276,27 +279,26 @@ export const coordinatorController = {
       if (result.rowCount === 0) {
         return res.status(404).send({
           status: "error",
-          message: "No se encontró ningún coordinador",
+          message: "No se encontró ningún decano",
         });
       }
 
       return res.status(200).send({
         status: "success",
-        message: "Coordinador actualizado correctamente",
-        updatedCoordinator: result.rows[0],
+        message: "Decano actualizado correctamente",
+        updatedDean: result.rows[0],
       });
     } catch (error) {
       if (error.code === "23505") {
         return res.status(409).send({
           status: "error",
-          message:
-            "Ya existe un coordinador con ese documento, email o programa",
+          message: "Ya existe un decano con ese documento, email o facultad",
         });
       }
 
       return res.status(500).send({
         status: "error",
-        message: "Error al actualizar el coordinador: " + error.message,
+        message: "Error al actualizar el decano: " + error.message,
       });
     }
   },

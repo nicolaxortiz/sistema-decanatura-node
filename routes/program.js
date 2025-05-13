@@ -21,5 +21,10 @@ programRouter.get(
   verifyAdmin,
   programController.getAllByCampusId
 );
+programRouter.get(
+  "/getByFacultyAndCampusId/:campus_id/:faculty",
+  verifyToken,
+  programController.getByFacultyAndCampusId
+);
 programRouter.post("/", verifyToken, verifyAdmin, programController.post);
 programRouter.put("/:id", verifyToken, verifyAdmin, programController.update);

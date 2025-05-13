@@ -11,6 +11,7 @@ import { coordinatorRouter } from "./routes/coordinator.js";
 import { formatRouter } from "./routes/format.js";
 import { campusRouter } from "./routes/campus.js";
 import { programRouter } from "./routes/program.js";
+import { deanRouter } from "./routes/dean.js";
 
 const app = express();
 const port = process.env.PORT;
@@ -39,6 +40,7 @@ app.use("/api/programa", programRouter);
 app.use("/api/configuracion", configurationRouter);
 app.use("/api/docentes", teacherRouter);
 app.use("/api/coordinador", coordinatorRouter);
+app.use("/api/decano", deanRouter);
 app.use("/api/actividad", activityRouter);
 app.use("/api/horario", scheduleRouter);
 app.use("/api/documento", documentRouter);

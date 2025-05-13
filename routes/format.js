@@ -16,8 +16,12 @@ formatRouter.get(
 formatRouter.post(
   "/getAll",
   verifyToken,
-  verifyCoordinator,
   formatController.getByProgramIdAndSemester
+);
+formatRouter.post(
+  "/getAllSigned",
+  verifyToken,
+  formatController.getSignedByProgramIdAndSemester
 );
 formatRouter.post("/", verifyToken, formatController.post);
 formatRouter.put("/:id", verifyToken, formatController.update);

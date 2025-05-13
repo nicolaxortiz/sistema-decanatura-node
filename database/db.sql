@@ -15,9 +15,23 @@ CREATE TABLE Configuration (
     FOREIGN KEY (campus_id) REFERENCES Campus(id)
 )
 
+CREATE TABLE Dean (
+    id SERIAL PRIMARY KEY,
+    document VARCHAR(50) UNIQUE NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password TEXT,
+    faculty VARCHAR(20),
+    campus_id INT NOT NULL,
+    FOREIGN KEY (campus_id) REFERENCES Campus(id)
+);
+
+
 CREATE TABLE Program (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    faculty VARCHAR(20),
     campus_id INT NOT NULL,
     FOREIGN KEY (campus_id) REFERENCES Campus(id)
 );
@@ -29,7 +43,7 @@ CREATE TABLE Coordinator (
     last_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password TEXT,
-    signature TEXT,
+    role VARCHAR(50),
     program_id INT UNIQUE NOT NULL,
     FOREIGN KEY (program_id) REFERENCES Program(id)
 );
@@ -43,8 +57,6 @@ CREATE TABLE Teacher (
     password TEXT,
     phone VARCHAR(20),
     address TEXT,
-    photo TEXT,
-    signature TEXT,
     card VARCHAR(20),
     faculty VARCHAR(255),
     campus VARCHAR(255),

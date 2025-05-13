@@ -61,6 +61,7 @@ const generatePDF = ({
   res,
   userData,
   coordinatorData,
+  deanData,
   activityData,
   scheduleData,
   formatData,
@@ -70,6 +71,7 @@ const generatePDF = ({
     __dirname + "/images/" + userData.document + "firma.jpg";
   let imgFirmaCoordinador =
     __dirname + "/images/" + coordinatorData.document + "firma.jpg";
+  let imgFirmaDecano = __dirname + "/images/" + deanData.document + "firma.jpg";
 
   let tableActividades = [
     [
@@ -949,7 +951,7 @@ const generatePDF = ({
               },
 
               {
-                text: "Decano",
+                text: `${deanData.first_name} ${deanData.last_name}`,
                 style: "header",
               },
             ],
@@ -962,7 +964,7 @@ const generatePDF = ({
               },
 
               {
-                image: formatData?.is_signed
+                image: formatData?.is_coord_signed
                   ? imgFirmaCoordinador
                   : nullSignature,
                 fit: [150, 150],
@@ -971,7 +973,11 @@ const generatePDF = ({
               },
 
               {
-                text: "",
+                image: formatData?.is_dean_signed
+                  ? imgFirmaDecano
+                  : nullSignature,
+                fit: [150, 150],
+                margin: [0, 2, 0, 2],
                 style: "data",
               },
             ],

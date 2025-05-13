@@ -11,7 +11,7 @@ import {
 export const coordinatorRouter = express.Router();
 
 coordinatorRouter.get(
-  "/:campus_id",
+  "/:campus_id/:actualPage",
   verifyToken,
   verifyAdmin,
   coordinatorController.getByCampusId
