@@ -174,7 +174,7 @@ export const teacherController = {
       const mailOptions = {
         from: process.env.EMAIL,
         to: email,
-        subject: "Cambio de contraseña",
+        subject: "Recuperación de contraseña",
         text: `Estimado usuario,
       
       Se le notifica que su nueva contraseña es: ${NewPassword}
@@ -274,7 +274,7 @@ export const teacherController = {
 
     try {
       const response = await pool.query(
-        "SELECT document FROM teacher where id = $1",
+        "SELECT document, email FROM teacher where id = $1",
         [id]
       );
       if (response.rows.length === 0) {
@@ -284,6 +284,7 @@ export const teacherController = {
         });
       }
       const document = response.rows[0].document;
+      const email = response.rows[0].email;
 
       if (
         personalPic &&
@@ -325,11 +326,49 @@ export const teacherController = {
         });
       }
 
-      return res.status(200).send({
-        status: "success",
-        message: "Docente actualizado correctamente",
-        updatedTeacher: result.rows[0],
-      });
+      if (updateObject.password) {
+        const mailOptions = {
+          from: process.env.EMAIL,
+          to: email,
+          subject: "Cambio de contraseña",
+          text: `Estimado usuario,
+      
+      Se le notifica que su contraseña ha sido cambiada exitosamente.
+      
+      En caso de que no haya solicitado este cambio, se recomienda acudir a la coordinación correspondiente para gestionar la revisión de la cuenta. 
+      
+      Atentamente,
+      Sistema de informe docente F-DC-54`,
+          html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #333;">Cambio de contraseña</h2>
+            <p>Estimado usuario,</p>
+            <p>Se le notifica que su contraseña ha sido cambiada exitosamente.</p>
+            <p>En caso de que no haya solicitado este cambio, se recomienda acudir a la coordinación correspondiente para gestionar la revisión de la cuenta.</p>
+            <p>Atentamente,<br><strong>Sistema de informe docente F-DC-54</strong></p>
+            <hr>
+            <p style="font-size: 12px; color: #777;">
+              Este es un mensaje automático, por favor no responda directamente a este correo.
+            </p>
+          </div>
+        `,
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            return res.status(404).send({
+              status: "error",
+              message: "Error en el envío: " + error,
+            });
+          } else {
+            return res.status(200).send({
+              status: "success",
+              message: "Docente actualizado correctamente",
+              updatedTeacher: result.rows[0],
+            });
+          }
+        });
+      }
     } catch (error) {
       return res.status(500).send({
         status: "error",

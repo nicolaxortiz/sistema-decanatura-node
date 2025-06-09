@@ -1,6 +1,42 @@
 import { pool } from "../db.js";
 
 export const programController = {
+  getById: async (req, res) => {
+    let { id } = req.params;
+
+    try {
+      const { rows } = await pool.query(
+        `SELECT 
+        program.id AS program_id,
+        program.name AS program_name,
+        program.faculty AS program_faculty,
+        coordinator.first_name AS coordinator_first_name,
+        coordinator.last_name AS coordinator_last_name
+        FROM program 
+        LEFT JOIN coordinator ON program.id = coordinator.program_id
+        WHERE program.id = $1;`,
+        [id]
+      );
+
+      if (rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún programa",
+        });
+      }
+
+      return res.status(200).send({
+        status: "success",
+        program: rows[0],
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: error.message,
+      });
+    }
+  },
+
   getByCampusId: async (req, res) => {
     let { campus_id, actualPage } = req.params;
 

@@ -8,13 +8,10 @@ export const configurationController = {
       end_date,
       campus_id,
       campus_name,
-      docencia,
       investigacion,
       extension,
       oaca,
       oda,
-      comites,
-      otras,
       title,
       tc_hours,
       mt_hours,
@@ -31,21 +28,18 @@ export const configurationController = {
       const result = await pool.query(
         `
     INSERT INTO configuration (semester, start_date, end_date, information, campus_id, 
-    docencia, investigacion, extension, oaca, oda, comites, otras, title, tc_hours,
+     investigacion, extension, oaca, oda, title, tc_hours,
       mt_hours)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     ON CONFLICT (campus_id) 
     DO UPDATE SET 
         semester = EXCLUDED.semester,
         start_date = EXCLUDED.start_date,
         end_date = EXCLUDED.end_date,
-        docencia = EXCLUDED.docencia,
         investigacion = EXCLUDED.investigacion,
         extension = EXCLUDED.extension,
         oaca = EXCLUDED.oaca,
         oda = EXCLUDED.oda,
-        comites = EXCLUDED.comites,
-        otras = EXCLUDED.otras,
         title = EXCLUDED.title,
         tc_hours = EXCLUDED.tc_hours,
         mt_hours = EXCLUDED.mt_hours
@@ -57,13 +51,10 @@ export const configurationController = {
           end_date,
           information,
           campus_id,
-          docencia,
           investigacion,
           extension,
           oaca,
           oda,
-          comites,
-          otras,
           title,
           tc_hours,
           mt_hours,
