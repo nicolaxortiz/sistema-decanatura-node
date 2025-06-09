@@ -158,12 +158,12 @@ export const programController = {
   },
 
   post: async (req, res) => {
-    let { name, campus_id } = req.body;
+    let { name, faculty, campus_id } = req.body;
 
     try {
       const result = await pool.query(
-        `INSERT INTO program (name, campus_id) VALUES ($1, $2)`,
-        [name, campus_id]
+        `INSERT INTO program (name, faculty, campus_id) VALUES ($1, $2, $3)`,
+        [name, faculty, campus_id]
       );
 
       if (result.rowCount === 0) {

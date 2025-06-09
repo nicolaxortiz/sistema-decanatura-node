@@ -17,12 +17,7 @@ export const configurationController = {
       mt_hours,
     } = req.body;
 
-    const information =
-      campus_name
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/\s+/g, "_") + ".js";
+    const information = campus_name.toLowerCase().replace(/\s+/g, "_") + ".js";
 
     try {
       const result = await pool.query(
