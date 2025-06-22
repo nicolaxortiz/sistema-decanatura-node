@@ -369,6 +369,12 @@ export const teacherController = {
           }
         });
       }
+
+      return res.status(200).send({
+        status: "success",
+        message: "Docente actualizado correctamente",
+        updatedTeacher: result.rows[0],
+      });
     } catch (error) {
       return res.status(500).send({
         status: "error",

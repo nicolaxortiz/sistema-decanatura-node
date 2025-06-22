@@ -22,6 +22,5 @@ deanRouter.post("/", verifyToken, verifyAdmin, deanController.post);
 deanRouter.put(
   "/:id",
   upload.fields([{ name: "signature", maxCount: 1 }]),
-  verifyToken,
   deanController.update
 );

@@ -42,7 +42,7 @@ export const documentController = {
       if (coordinator.rows.length === 0) {
         return res.status(404).send({
           status: "error",
-          message: "No se encontró ningún coordinador ",
+          message: "No se encontró ningún coordinador de programa",
         });
       }
 
@@ -53,7 +53,7 @@ export const documentController = {
       if (dean.rows.length === 0) {
         return res.status(404).send({
           status: "error",
-          message: "No se encontró ningún decano",
+          message: "No se encontró ningún decano de la facultad",
         });
       }
 

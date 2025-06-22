@@ -27,6 +27,5 @@ coordinatorRouter.post(
 coordinatorRouter.put(
   "/:id",
   upload.fields([{ name: "signature", maxCount: 1 }]),
-  verifyToken,
   coordinatorController.update
 );
