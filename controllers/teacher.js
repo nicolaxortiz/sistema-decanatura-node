@@ -185,7 +185,7 @@ export const teacherController = {
       Sistema de informe docente F-DC-54`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h2 style="color: #333;">Cambio de contraseña</h2>
+            <h2 style="color: #333;">Recuperación de contraseña</h2>
             <p>Estimado usuario,</p>
             <p>Se le notifica que su nueva contraseña es: <strong>${NewPassword}</strong></p>
             <p>En caso de persistir problemas con la contraseña, se solicita acudir a la coordinación correspondiente para gestionar la revisión de la cuenta.</p>
@@ -363,8 +363,7 @@ export const teacherController = {
           } else {
             return res.status(200).send({
               status: "success",
-              message: "Docente actualizado correctamente",
-              updatedTeacher: result.rows[0],
+              message: "Correo enviado correctamente",
             });
           }
         });

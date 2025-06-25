@@ -141,7 +141,7 @@ export const deanController = {
       const mailOptions = {
         from: process.env.EMAIL,
         to: email,
-        subject: "Cambio de contraseña",
+        subject: "Recuperación de contraseña",
         text: `Estimado usuario,
       
       Se le notifica que su nueva contraseña es: ${NewPassword}
@@ -152,7 +152,7 @@ export const deanController = {
       Sistema de informe docente F-DC-54`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h2 style="color: #333;">Cambio de contraseña</h2>
+            <h2 style="color: #333;">Recuperación de contraseña</h2>
             <p>Estimado usuario,</p>
             <p>Se le notifica que su nueva contraseña es: <strong>${NewPassword}</strong></p>
             <p>En caso de persistir problemas con la contraseña, se solicita acudir a la coordinación correspondiente para gestionar la revisión de la cuenta.</p>
@@ -242,18 +242,20 @@ export const deanController = {
     const signaturePic = req.files?.signature;
 
     try {
+      const response = await pool.query(
+        "SELECT document, email FROM dean where id = $1",
+        [id]
+      );
+      if (response.rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún decano",
+        });
+      }
+      const document = response.rows[0].document;
+      const email = response.rows[0].email;
+
       if (signaturePic && signaturePic.length > 0) {
-        const response = await pool.query(
-          "SELECT document FROM dean where id = $1",
-          [id]
-        );
-        if (response.rows.length === 0) {
-          return res.status(404).send({
-            status: "error",
-            message: "No se encontró ningún decano",
-          });
-        }
-        const document = response.rows[0].document;
         await downloadImage(document, signaturePic[0], "firma");
       }
 
@@ -280,6 +282,49 @@ export const deanController = {
         return res.status(404).send({
           status: "error",
           message: "No se encontró ningún decano",
+        });
+      }
+
+      if (updateObject.password) {
+        const mailOptions = {
+          from: process.env.EMAIL,
+          to: email,
+          subject: "Cambio de contraseña",
+          text: `Estimado usuario,
+      
+      Se le notifica que su contraseña ha sido cambiada exitosamente.
+      
+      En caso de que no haya solicitado este cambio, se recomienda acudir a la coordinación correspondiente para gestionar la revisión de la cuenta. 
+      
+      Atentamente,
+      Sistema de informe docente F-DC-54`,
+          html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #333;">Cambio de contraseña</h2>
+            <p>Estimado usuario,</p>
+            <p>Se le notifica que su contraseña ha sido cambiada exitosamente.</p>
+            <p>En caso de que no haya solicitado este cambio, se recomienda acudir a la coordinación correspondiente para gestionar la revisión de la cuenta.</p>
+            <p>Atentamente,<br><strong>Sistema de informe docente F-DC-54</strong></p>
+            <hr>
+            <p style="font-size: 12px; color: #777;">
+              Este es un mensaje automático, por favor no responda directamente a este correo.
+            </p>
+          </div>
+        `,
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            return res.status(404).send({
+              status: "error",
+              message: "Error en el envío: " + error,
+            });
+          } else {
+            return res.status(200).send({
+              status: "success",
+              message: "Correo enviado correctamente",
+            });
+          }
         });
       }
 
