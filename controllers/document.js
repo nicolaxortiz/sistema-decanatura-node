@@ -155,7 +155,7 @@ export const documentController = {
            SELECT 1 
            FROM activity a2 
            WHERE a2.teacher_id = $1 
-           AND a2.mission = $3
+           AND a2.convention = $3
          )
          ORDER BY id ASC`,
         [id, semester, mission]

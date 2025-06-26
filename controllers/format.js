@@ -107,14 +107,7 @@ export const formatController = {
   },
 
   getSignedByProgramIdAndSemester: async (req, res) => {
-    let {
-      id,
-      semester,
-      searchName,
-      actualPage,
-      is_coord_signed,
-      is_dean_signed,
-    } = req.body;
+    let { id, semester, searchName, actualPage, is_coord_signed } = req.body;
 
     const limit = 8;
     const offset = (actualPage - 1) * limit;

@@ -76,42 +76,6 @@ export const configurationController = {
     }
   },
 
-  // update: async (req, res) => {
-  //   let { id } = req.params;
-  //   let configurationObject = req.body;
-
-  //   try {
-  //     const fields = Object.keys(configurationObject);
-  //     const values = Object.values(configurationObject);
-
-  //     const result = await pool.query(
-  //       `
-  //       UPDATE configuration SET ${fields.map(
-  //         (field, index) => `${field} = $${index + 1}`
-  //       )} WHERE id = $${fields.length + 1};
-  //       `,
-  //       [...values, id]
-  //     );
-
-  //     if (result.rowCount === 0) {
-  //       return res.status(404).send({
-  //         status: "error",
-  //         message: "No se pudo actualizar la configuración",
-  //       });
-  //     }
-
-  //     return res.status(200).send({
-  //       status: "success",
-  //       message: "Configuración actualizada correctamente",
-  //     });
-  //   } catch (error) {
-  //     return res.status(500).send({
-  //       status: "error",
-  //       message: "Error al actualizar la configuración: " + error.message,
-  //     });
-  //   }
-  // },
-
   getByProgramId: async (req, res) => {
     let { program_id } = req.params;
     try {
