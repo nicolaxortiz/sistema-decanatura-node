@@ -135,6 +135,34 @@ export const scheduleController = {
     }
   },
 
+  deleteByActivityId: async (req, res) => {
+    let { activity_id } = req.params;
+
+    try {
+      const result = await pool.query(
+        "DELETE FROM schedule WHERE activity_id = $1",
+        [activity_id]
+      );
+
+      if (result.rowCount === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ningún horario asociado a esta actividad",
+        });
+      }
+
+      return res.status(200).send({
+        status: "success",
+        message: "Horario eliminado correctamente",
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: "Error al eliminar el horario: " + error.message,
+      });
+    }
+  },
+
   deleteAll: async (req, res) => {
     let { teacher_id, semester } = req.params;
 

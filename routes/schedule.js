@@ -22,6 +22,12 @@ scheduleRouter.delete(
 );
 
 scheduleRouter.delete(
+  "/:activity_id",
+  verifyToken,
+  scheduleController.deleteByActivityId
+);
+
+scheduleRouter.delete(
   "/:teacher_id/:semester",
   verifyToken,
   scheduleController.deleteAll

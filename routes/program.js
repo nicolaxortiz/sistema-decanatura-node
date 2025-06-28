@@ -9,12 +9,7 @@ import { programController } from "../controllers/program.js";
 
 export const programRouter = express.Router();
 
-programRouter.get(
-  "/getById/:id",
-  verifyToken,
-  verifyTeacher,
-  programController.getById
-);
+programRouter.get("/getById/:id", verifyToken, programController.getById);
 programRouter.get(
   "/getByCampusId/:campus_id/:actualPage",
   verifyToken,

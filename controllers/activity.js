@@ -2,7 +2,6 @@ import { Activity } from "../models/activity.js";
 import { pool } from "../db.js";
 
 export const activityController = {
-  // getAll: async (req, res) => {
   //   let { program_id, semester } = req.params;
 
   //   try {
@@ -90,6 +89,24 @@ export const activityController = {
     let activityObject = req.body;
 
     try {
+      const searchQuery = await pool.query(
+        "SELECT * FROM activity WHERE teacher_id = $1 AND semester = $2 AND name = $3 AND description = $4 AND group_name = $5",
+        [
+          activityObject.teacher_id,
+          activityObject.semester,
+          activityObject.name,
+          activityObject.description,
+          activityObject.group_name,
+        ]
+      );
+
+      if (searchQuery.rows.length > 0) {
+        return res.status(409).send({
+          status: "error",
+          message: "Ya existe una actividad con los mismos datos",
+        });
+      }
+
       const keys = Object.keys(activityObject);
       const values = Object.values(activityObject);
 
