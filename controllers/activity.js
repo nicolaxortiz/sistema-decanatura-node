@@ -2,32 +2,33 @@ import { Activity } from "../models/activity.js";
 import { pool } from "../db.js";
 
 export const activityController = {
-  //   let { program_id, semester } = req.params;
+  getAll: async (req, res) => {
+    let { campus, semester } = req.params;
 
-  //   try {
-  //     const { rows } = await pool.query(
-  //       "SELECT * FROM activity JOIN teacher ON activity.teacher_id = teacher.id JOIN program ON teacher.program_id = program.id WHERE program.id = $1 AND activity.semester = $2",
-  //       [program_id, semester]
-  //     );
+    try {
+      const { rows } = await pool.query(
+        "SELECT activity.id, activity.convention FROM activity JOIN teacher ON activity.teacher_id = teacher.id  WHERE teacher.campus = $1 AND activity.semester = $2",
+        [campus, semester]
+      );
 
-  //     if (rows.length === 0) {
-  //       return res.status(404).send({
-  //         status: "error",
-  //         message: "No se encontró ninguna actividad",
-  //       });
-  //     }
+      if (rows.length === 0) {
+        return res.status(404).send({
+          status: "error",
+          message: "No se encontró ninguna actividad",
+        });
+      }
 
-  //     return res.status(200).send({
-  //       status: "success",
-  //       activity: rows,
-  //     });
-  //   } catch (error) {
-  //     return res.status(500).send({
-  //       status: "error",
-  //       message: "Error al listar las actividades: " + error.message,
-  //     });
-  //   }
-  // },
+      return res.status(200).send({
+        status: "success",
+        activities: rows,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: "Error al listar las actividades: " + error.message,
+      });
+    }
+  },
 
   // getbyIdDocente: async (req, res) => {
   //   let { id } = req.params;
@@ -142,6 +143,7 @@ export const activityController = {
   update: async (req, res) => {
     let { id } = req.params;
     let activityObject = req.body;
+    console.log("Activity Object:", activityObject);
 
     try {
       const fields = Object.keys(activityObject);

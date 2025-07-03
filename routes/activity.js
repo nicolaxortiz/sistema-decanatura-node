@@ -4,7 +4,7 @@ import { verifyToken } from "../middlewares/jwt.middleware.js";
 
 export const activityRouter = express.Router();
 
-// activityRouter.get("/getAll/:program_id/:semester", activityController.getAll);
+activityRouter.get("/getAll/:campus/:semester", activityController.getAll);
 // activityRouter.get("/getById/:id", activityController.getbyIdDocente);
 activityRouter.get(
   "/getByIdAndSemester/:id/:semester",

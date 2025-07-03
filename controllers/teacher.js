@@ -326,7 +326,7 @@ export const teacherController = {
         });
       }
 
-      if (updateObject.password) {
+      if (updateObject.password && process.env.EMAIL) {
         const mailOptions = {
           from: process.env.EMAIL,
           to: email,
