@@ -208,7 +208,7 @@ const reportePDF = ({
     },
     {},
     ...Object.keys(columns).map((key) => ({
-      text: columns[key],
+      text: columns[key].toFixed(2),
       style: key.includes("Total") ? "totalStyleFinal" : "Docenciadirecta",
     })),
   ]);

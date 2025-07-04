@@ -505,7 +505,7 @@ const reportePDF = ({
     },
     {},
     ...Object.keys(columns).map((key) => ({
-      text: columns[key],
+      text: columns[key].toFixed(2),
       style: key.includes("Total") ? "totalStyleFinal" : "Docenciadirecta",
     })),
   ]);
@@ -587,7 +587,7 @@ const reportePDF = ({
   const diagrama = __dirname + "/images/diagrama.png";
 
   const docDefinition = {
-    pageSize: { width: 1500, height: 1000 },
+    pageSize: { width: 1800, height: 1200 },
     pageOrientation: "landscape",
     pageMargins: [20, 20, 20, 20],
     content: [
