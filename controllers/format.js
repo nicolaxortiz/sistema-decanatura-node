@@ -58,7 +58,14 @@ export const formatController = {
           SELECT format.*, teacher.document, teacher.first_name, teacher.last_name, teacher.employment_type, teacher.campus
           FROM format
           INNER JOIN teacher ON format.teacher_id = teacher.id
-          WHERE teacher.program_id = $1 AND format.semester = $2 AND format.is_finish = $3 ORDER BY id LIMIT $4 OFFSET $5;
+          WHERE teacher.program_id = $1 AND format.semester = $2 AND format.is_finish = $3 ORDER BY
+          CASE
+            WHEN employment_type = 'Carrera' THEN 1
+            WHEN employment_type = 'Tiempo completo' THEN 2
+            WHEN employment_type = 'Medio tiempo 11M' THEN 3
+            WHEN employment_type = 'Medio tiempo 4M' THEN 4
+            WHEN employment_type IS NULL THEN 5
+          END LIMIT $4 OFFSET $5;
           `,
           [id, semester, filter, limit, offset]
         );
@@ -68,7 +75,14 @@ export const formatController = {
           SELECT format.*, teacher.document, teacher.first_name, teacher.last_name, teacher.employment_type, teacher.campus
           FROM format
           INNER JOIN teacher ON format.teacher_id = teacher.id
-          WHERE teacher.program_id = $1 AND format.semester = $2 AND format.is_coord_signed = $3 ORDER BY id;
+          WHERE teacher.program_id = $1 AND format.semester = $2 AND format.is_coord_signed = $3 ORDER BY
+          CASE
+            WHEN employment_type = 'Carrera' THEN 1
+            WHEN employment_type = 'Tiempo completo' THEN 2
+            WHEN employment_type = 'Medio tiempo 11M' THEN 3
+            WHEN employment_type = 'Medio tiempo 4M' THEN 4
+            WHEN employment_type IS NULL THEN 5
+          END;
           `,
           [id, semester, filter]
         );

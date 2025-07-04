@@ -213,7 +213,14 @@ export const documentController = {
     let { program_id, semester, title } = req.params;
     try {
       const teacher = await pool.query(
-        "SELECT * FROM teacher WHERE program_id = $1 AND is_active = true ORDER BY id ASC",
+        `SELECT * FROM teacher WHERE program_id = $1 AND is_active = true ORDER BY
+        CASE
+          WHEN employment_type = 'Carrera' THEN 1
+          WHEN employment_type = 'Tiempo completo' THEN 2
+          WHEN employment_type = 'Medio tiempo 11M' THEN 3
+          WHEN employment_type = 'Medio tiempo 4M' THEN 4
+          WHEN employment_type IS NULL THEN 5
+        END;`,
         [program_id]
       );
 
@@ -260,7 +267,14 @@ export const documentController = {
 
     try {
       const teacher = await pool.query(
-        "SELECT * FROM teacher WHERE program_id = $1 AND is_active = true ORDER BY id ASC",
+        `SELECT * FROM teacher WHERE program_id = $1 AND is_active = true ORDER BY
+          CASE
+            WHEN employment_type = 'Carrera' THEN 1
+            WHEN employment_type = 'Tiempo completo' THEN 2
+            WHEN employment_type = 'Medio tiempo 11M' THEN 3
+            WHEN employment_type = 'Medio tiempo 4M' THEN 4
+            WHEN employment_type IS NULL THEN 5
+          END;`,
         [program_id]
       );
 

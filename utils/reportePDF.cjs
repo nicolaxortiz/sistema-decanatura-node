@@ -587,7 +587,7 @@ const reportePDF = ({
   const diagrama = __dirname + "/images/diagrama.png";
 
   const docDefinition = {
-    pageSize: { width: 1800, height: 1200 },
+    pageSize: { width: 1800, height: 1300 },
     pageOrientation: "landscape",
     pageMargins: [20, 20, 20, 20],
     content: [

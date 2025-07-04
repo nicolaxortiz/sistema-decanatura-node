@@ -32,7 +32,14 @@ export const teacherController = {
       let rows = [];
       if (name === "") {
         rows = await pool.query(
-          "SELECT teacher.id, teacher.first_name, teacher.last_name, teacher.faculty, teacher.campus, teacher.program_name, teacher.employment_type, teacher.is_active FROM teacher WHERE is_active = $1 and program_id = $2 ORDER BY id LIMIT $3 OFFSET $4;",
+          `SELECT teacher.id, teacher.first_name, teacher.last_name, teacher.faculty, teacher.campus, teacher.program_name, teacher.employment_type, teacher.is_active FROM teacher WHERE is_active = $1 and program_id = $2 ORDER BY
+          CASE
+            WHEN employment_type = 'Carrera' THEN 1
+            WHEN employment_type = 'Tiempo completo' THEN 2
+            WHEN employment_type = 'Medio tiempo 11M' THEN 3
+            WHEN employment_type = 'Medio tiempo 4M' THEN 4
+            WHEN employment_type IS NULL THEN 5
+          END LIMIT $3 OFFSET $4;`,
           [filter, program_id, limit, offset]
         );
       } else {
