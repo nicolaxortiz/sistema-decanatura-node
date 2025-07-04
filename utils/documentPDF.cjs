@@ -39,7 +39,7 @@ const printer = new PdfPrinter(fonts);
 function convertirHora(hora) {
   const horasDe60Minutos = hora * 0.75;
 
-  return Math.ceil(horasDe60Minutos);
+  return Math.ceil(horasDe60Minutos.toFixed(2));
 }
 
 function convertirFecha(fecha) {
@@ -194,7 +194,7 @@ const generatePDF = ({
       { text: item.hours, style: "data" },
       { text: item.hours, style: "data" },
       { text: item.hours, style: "data" },
-      { text: item.hours * 17, style: "header" },
+      { text: (item.hours * 17).toFixed(2), style: "header" },
     ]);
 
     tableProductos.push([
@@ -225,7 +225,7 @@ const generatePDF = ({
     { text: countHours, style: "data" },
     { text: countHours, style: "data" },
     { text: countHours, style: "data" },
-    { text: countHours * 17, style: "header" },
+    { text: (countHours * 17).toFixed(2), style: "header" },
   ]);
 
   let tableHorario = [
@@ -737,7 +737,7 @@ const generatePDF = ({
                 style: "dataRight",
               },
               {
-                text: countHours,
+                text: countHours.toFixed(2),
                 style: "header",
               },
             ],
@@ -809,7 +809,7 @@ const generatePDF = ({
                 style: "dataRight",
               },
               {
-                text: countHours * 17,
+                text: (countHours * 17).toFixed(2),
                 style: "header",
               },
             ],
