@@ -358,27 +358,27 @@ const generatePDF = ({
         style: "header",
       },
       {
-        text: lunesCount,
+        text: lunesCount.toFixed(2),
         style: "header",
       },
       {
-        text: martesCount,
+        text: martesCount.toFixed(2),
         style: "header",
       },
       {
-        text: miercolesCount,
+        text: miercolesCount.toFixed(2),
         style: "header",
       },
       {
-        text: juevesCount,
+        text: juevesCount.toFixed(2),
         style: "header",
       },
       {
-        text: viernesCount,
+        text: viernesCount.toFixed(2),
         style: "header",
       },
       {
-        text: sabadoCount,
+        text: sabadoCount.toFixed(2),
         style: "header",
       },
     ],
@@ -388,27 +388,27 @@ const generatePDF = ({
         style: "header",
       },
       {
-        text: lunesCount * 0.75,
+        text: (lunesCount * 0.75).toFixed(2),
         style: "header",
       },
       {
-        text: martesCount * 0.75,
+        text: (martesCount * 0.75).toFixed(2),
         style: "header",
       },
       {
-        text: miercolesCount * 0.75,
+        text: (miercolesCount * 0.75).toFixed(2),
         style: "header",
       },
       {
-        text: juevesCount * 0.75,
+        text: (juevesCount * 0.75).toFixed(2),
         style: "header",
       },
       {
-        text: viernesCount * 0.75,
+        text: (viernesCount * 0.75).toFixed(2),
         style: "header",
       },
       {
-        text: sabadoCount * 0.75,
+        text: (sabadoCount * 0.75).toFixed(2),
         style: "header",
       },
     ]
@@ -891,7 +891,7 @@ const generatePDF = ({
                 style: "dataRight",
               },
               {
-                text: countHours,
+                text: countHours.toFixed(2),
                 style: "header",
               },
             ],
