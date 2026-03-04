@@ -1031,10 +1031,10 @@ const generatePDF = ({
                 text: "ELABORADO POR",
                 style: "header",
               },
-              {
-                text: "DESARROLLADO POR",
-                style: "header",
-              },
+              // {
+              //   text: "DESARROLLADO POR",
+              //   style: "header",
+              // },
               {
                 text: "REVISADO POR",
                 style: "header",
@@ -1049,10 +1049,10 @@ const generatePDF = ({
                 text: "Docencia",
                 style: "data",
               },
-              {
-                text: "Nicolas Santiago Ortiz Pedraza",
-                style: "data",
-              },
+              // {
+              //   text: "Nicolas Santiago Ortiz Pedraza",
+              //   style: "data",
+              // },
               {
                 text: "Sistema integrado de gestión SIG",
                 style: "data",
