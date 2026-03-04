@@ -1023,7 +1023,7 @@ const generatePDF = ({
       {
         table: {
           dontBreakRows: true,
-          widths: ["*", "*", "*", "*"],
+          widths: ["*", "*", "*"],
           heights: 1,
           body: [
             [
